@@ -1,0 +1,79 @@
+  <div class="example-container" [class.example-is-mobile]="mobileQuery.matches" >
+    <mat-toolbar color="primary" class="example-toolbar">
+        
+      <button mat-icon-button (click)="snav.toggle()"><mat-icon>menu</mat-icon></button>
+      <h1 class="example-app-name">IT Service</h1>
+
+      <mat-icon aria-hidden="false" aria-label="Example home icon">home</mat-icon>
+    </mat-toolbar>
+
+    
+  
+    <mat-sidenav-container class="example-sidenav-container"
+                           [style.marginTop.px]="mobileQuery.matches ? 56 : 0">
+                           
+            <mat-sidenav #snav [(opened)]="opened" [mode]="mobileQuery.matches ? 'over' : 'side'"
+                           [fixedInViewport]="mobileQuery.matches" fixedTopGap="56" >
+                <mat-nav-list>
+                  <!-- <a mat-list-item routerLink="." *ngFor="let nav of fillerNav">{{nav}}</a> -->
+                  <a mat-list-item routerLink="./itservicerequest" >Create Request</a>
+                  <a mat-list-item routerLink="./getstarted" >Get Started</a>
+                  <a mat-list-item routerLink="./approvalflow" >Approval Flow</a>                  
+                  <a mat-list-item routerLink="." >Dashboard</a>
+                  <a mat-list-item routerLink="." >Report</a>                  
+                  <a mat-list-item routerLink="./getstarted" >Help</a>
+                  <a mat-list-item routerLink="./getstarted" >SOP</a>
+                  <a mat-list-item routerLink="./getstarted" >FAQ</a>
+                </mat-nav-list>
+            </mat-sidenav>
+        
+
+      <mat-sidenav-content>  
+        
+        <ng-container >
+          <a routerLink="./itservicerequest" ><portal-dragndresizable [requestInfo]="requestInfo" (outputToParent)="GetOutputVal($event)" ></portal-dragndresizable></a>          
+        </ng-container>
+
+        <ng-container >
+          <a routerLink="./approvalflow" ><portal-dragndresizable [requestInfo]="requestInfo2" (outputToParent)="GetOutputVal($event)" ></portal-dragndresizable></a>
+        </ng-container>
+
+        <ng-container >
+          <a routerLink="./request" ><portal-dragndresizable [requestInfo]="requestInfo3" (outputToParent)="GetOutputVal($event)" ></portal-dragndresizable></a>
+        </ng-container>
+
+       
+
+        <!-- <div>
+          <p>
+            <button (click)="changePosition()">Change element position</button>
+          </p>
+            <portal-dragndresizable></portal-dragndresizable>
+        </div>
+
+        <div>
+            <portal-dragndresizable></portal-dragndresizable>
+        </div>
+        <div>
+            <portal-dragndresizable></portal-dragndresizable>
+        </div>
+
+        <div>
+            <portal-dragndresizable></portal-dragndresizable>
+        </div> -->
+
+        <!-- <div class="list-item" *ngFor="let item of todo" cdkDrag portal-dragndresizable>
+            {{ item }}
+        </div> -->
+      
+        <!-- <portal-resizableanyside></portal-resizableanyside> -->
+      </mat-sidenav-content>
+
+      
+    </mat-sidenav-container>
+  </div>
+
+  
+
+  
+<router-outlet></router-outlet>

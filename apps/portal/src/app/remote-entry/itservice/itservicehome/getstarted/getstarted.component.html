@@ -1,0 +1,68 @@
+<div>
+    <h2>New Request</h2>
+    <mat-tab-group>
+      <mat-tab label="Description">
+        <p>
+          The purpose of this is to demo use of Angular Dynamic Forms in conjunction
+          with use of Material Angular components. 
+          <br><br>
+          The first example renders a dynamic form<br><br>
+          The second example uses a material dialog to display the dynamic form
+        </p>
+        <!-- <portal-requestor></portal-requestor> -->
+        <div style="background-color: whitesmoke; padding: 15px; margin-left: 15px; margin-right: 15px;">
+          <portal-requestor [formGroup]="_form" [requestorsInfo]="requestorsInfo"></portal-requestor>
+          <pre>{{_form.value | json}}</pre>
+        </div>
+      </mat-tab>
+      <mat-tab label="Description2">
+        <p>
+          The purpose of this is to demo use of Angular Dynamic Forms in conjunction
+          with use of Material Angular components. 
+          <br><br>
+          The first example renders a dynamic form<br><br>
+          The second example uses a material dialog to display the dynamic form
+        </p>
+      </mat-tab>
+      <mat-tab label="Description3">
+        <p>
+          The purpose of this is to demo use of Angular Dynamic Forms in conjunction
+          with use of Material Angular components. 
+          <br><br>
+          The first example renders a dynamic form<br><br>
+          The second example uses a material dialog to display the dynamic form
+        </p>
+        <!-- <form
+        [formGroup]="linkAccountsForm"
+        >
+        <portal-requestor
+          [linkAccounts]="linkAccountsForm"
+          [step]="step"
+          [submitted]="submitted"
+        ></portal-requestor>
+      </form> -->
+      </mat-tab>
+      <mat-tab label="Dynamic Form">
+        <!-- add the dynamic form -->
+        <!-- <app-dynamic-form [questions]="questions"></app-dynamic-form> -->
+        
+
+        <div>
+          <mat-form-field >
+            <mat-label>Drop Down list</mat-label>
+            <mat-select >
+              <mat-option *ngFor="let opt of question.options" [value]="opt.key">
+                {{opt.value}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </mat-tab>
+      <mat-tab label="From Dialog">
+        <p>
+          Open the <strong>Dynamic Form</strong> inside a Material Dialog
+        </p>
+        <button mat-stroked-button (click)="openDialog()">Open Dynamic Form</button>
+      </mat-tab>
+    </mat-tab-group>
+</div>

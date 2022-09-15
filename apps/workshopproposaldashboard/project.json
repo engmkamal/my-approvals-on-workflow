@@ -1,0 +1,119 @@
+{
+  "projectType": "application",
+  "sourceRoot": "apps/workshopproposaldashboard/src",
+  "prefix": "portal",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/angular:webpack-browser",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/workshopproposaldashboard",
+        "index": "apps/workshopproposaldashboard/src/index.html",
+        "main": "apps/workshopproposaldashboard/src/main.ts",
+        "polyfills": "apps/workshopproposaldashboard/src/polyfills.ts",
+        "tsConfig": "apps/workshopproposaldashboard/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          "apps/workshopproposaldashboard/src/favicon.ico",
+          "apps/workshopproposaldashboard/src/assets"
+        ],
+        "styles": ["apps/workshopproposaldashboard/src/styles.scss"],
+        "scripts": [],
+        "customWebpackConfig": {
+          "path": "apps/workshopproposaldashboard/webpack.config.js"
+        }
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "2kb",
+              "maximumError": "4kb"
+            }
+          ],
+          "fileReplacements": [
+            {
+              "replace": "apps/workshopproposaldashboard/src/environments/environment.ts",
+              "with": "apps/workshopproposaldashboard/src/environments/environment.prod.ts"
+            }
+          ],
+          "outputHashing": "all",
+          "customWebpackConfig": {
+            "path": "apps/workshopproposaldashboard/webpack.prod.config.js"
+          }
+        },
+        "development": {
+          "buildOptimizer": false,
+          "optimization": false,
+          "vendorChunk": true,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "namedChunks": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@nrwl/angular:webpack-server",
+      "configurations": {
+        "production": {
+          "browserTarget": "workshopproposaldashboard:build:production"
+        },
+        "development": {
+          "browserTarget": "workshopproposaldashboard:build:development"
+        }
+      },
+      "defaultConfiguration": "development",
+      "options": {
+        "port": 4208,
+        "publicHost": "http://localhost:4208"
+      }
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n",
+      "options": {
+        "browserTarget": "workshopproposaldashboard:build"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "apps/workshopproposaldashboard/**/*.ts",
+          "apps/workshopproposaldashboard/**/*.html"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/workshopproposaldashboard"],
+      "options": {
+        "jestConfig": "apps/workshopproposaldashboard/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "serve-static": {
+      "executor": "@nrwl/angular:file-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "workshopproposaldashboard:build",
+        "port": 4208
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "workshopproposaldashboard:build:development"
+        },
+        "production": {
+          "buildTarget": "workshopproposaldashboard:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}

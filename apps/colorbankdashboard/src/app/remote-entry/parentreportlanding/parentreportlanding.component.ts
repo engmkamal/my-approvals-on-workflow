@@ -1,0 +1,1931 @@
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  AfterViewInit,
+  Renderer2
+} from '@angular/core';
+//========to covert promise to observer======
+import {
+  from,
+  forkJoin,
+  combineLatest,
+  Observable,
+  Subscription,
+  retry, 
+  catchError,
+  throwError,
+  of,
+  map,
+  Subject,
+  groupBy,
+  tap, 
+  mergeMap, 
+  reduce
+} from 'rxjs';
+import { GroupedObservable } from 'rxjs/internal/operators/groupBy';
+
+import { Tablegrid, ColumnDefinition } from '@portal/dashboard';
+import * as moment from 'moment';
+//---------date formate ends ---
+import { SharepointlistService } from '@portal/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+
+//import { MasterdetailsrendererComponent } from '../masterdetailsrenderer/masterdetailsrenderer.component';
+
+import { ActivatedRoute } from '@angular/router'; // to read the url route
+
+//=========for voice recognition ===========
+import { TransferState, makeStateKey } from '@angular/platform-browser';
+import { WebsocketService } from '@portal/core';
+//import { io } from 'socket.io-client';
+
+const configKey = makeStateKey('CONFIG');
+//------------
+
+//====import data from local storage ==
+//import * as fs from 'fs';
+//import * as path from 'path';
+
+
+
+import { AgGridAngular } from 'ag-grid-angular';
+import { 
+  CellClickedEvent, 
+  ColDef,
+  CellEditingStartedEvent,
+  CellEditingStoppedEvent,
+  ICellEditorParams,
+  RowEditingStartedEvent,
+  RowEditingStoppedEvent, 
+} from 'ag-grid-community';
+
+//===for editing starts====
+import * as $ from 'jquery';
+import { MomentDateAdapter } from '@angular/material-moment-adapter';
+import {
+  DateAdapter,
+  MAT_DATE_FORMATS,
+  MAT_DATE_LOCALE,
+} from '@angular/material/core';
+import Swal from 'sweetalert2';
+
+
+export const MY_FORMATS = {
+  parse: {
+    dateInput: 'LL',
+  },
+  display: {
+    dateInput: 'YYYY-MM-DD',
+    monthYearLabel: 'YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'YYYY',
+  },
+};
+
+//--------------editing ends ---
+
+//===========ajax service starts ====
+
+export class HttpajaxService {
+  headers = new HttpHeaders({
+    'Content-Type': 'application/json',
+  });
+
+  constructor(public http: HttpClient) { }
+
+
+  public saveData(
+    url: string, 
+    data: any
+    ): Observable<any> {
+        return this.http.post(
+          url, 
+          data, 
+          { headers: this.headers});
+  }
+}
+//----------ajax service ends ----
+
+
+//==========interface ===
+
+interface ComDetail {
+  ID?: number;
+  Title: string; 
+  EquipmentType: string; 
+  Description:string; 
+  AssetValue:string;
+  AmountTk?: string;
+  EndDate?: string;
+  GallonQty: string;
+}
+interface ComDetailGroup{ 
+  key: string;
+  value: Array<ComDetail>;
+}
+
+interface IInsDetail {
+  AppTitle?: string;
+  SalesType: string; 
+  PermonthFirst:any; 
+  PerMonth2nd:any;
+  //ID?: number;
+  Title?: string; 
+}
+
+interface IInsDetailGroup{ 
+  key: any;
+  value: Array<IInsDetail>;
+}
+
+
+
+
+declare let webkitSpeechRecognition: any; // for voice recognition
+
+
+
+@Component({
+  selector: 'portal-parentreportlanding',
+  templateUrl: './parentreportlanding.component.html',
+  styleUrls: ['./parentreportlanding.component.scss']
+})
+export class ParentreportlandingComponent implements OnInit, AfterViewInit {
+
+  //siteAbsoluteUrl = window.location.origin;
+  siteAbsoluteUrl = "https://portal.bergerbd.com/";
+  public rowDataWP: any;
+  mpTG = new Tablegrid();
+  public workflows = [];
+  rowData: any;
+  public txtOfQuickSearchInpFld:any;
+  //public rowHeight:any;
+
+  @ViewChild(AgGridAngular) agGrid!: AgGridAngular;
+  rowData$!: Observable<any[]>;
+
+  private logedInUser = { 
+    aDId: 0,
+    name: "",
+    email: "",
+    empID: "",
+    office: "",
+    access: "NoAccess"
+  };
+
+  private listInfo = {  
+    name: "",
+    query: "",
+    expand: "",
+    select: "",
+    filter: "",
+    orderByPrm: "",
+    orderByVal: false,
+    top: 20,
+  };
+
+
+  private detListInfo = {
+    name: "",
+    query: "",
+    expand: "",
+    select: "",
+    filter: "",
+    top: 200000,
+  };
+
+  //=========for infinite scrolling and lazy loading start=========
+  rowBuffer:any;
+  cacheOverflowSize:any;
+  maxConcurrentDatasourceRequests:any;
+  infiniteInitialRowCount:any;
+  maxBlocksInCache:any;
+  components:any;
+
+  private onGridReadyParamsApi:any;
+
+  private dbTagUrlInfo ={ 
+    titleTag: '',
+    urlVoice : '',
+    qryStrKeyVal: '',
+    qryStrKeyTyp: 'GUID',
+    mode1: '',
+    mode2: ''
+  }
+
+
+  @ViewChild('filterTextBox') filterTextBox:any;
+
+  private clickedDashboardInfo = { 
+    wfName: '',
+    acessPermission: "Unauthorized",
+    listIndex: 0,
+    serviceFnName: 'fetchListItemWithExpStFilOrd',
+    config: {},
+    mapedData: {d:[]},
+    recMstLocDat: {d:[]}
+  };
+
+  socket:any;
+  recentMstLocData:any;
+  dashboardsListsInfo:any;
+  elementRenderer!:any;
+  updatedata!:any;
+
+  // Http Options
+  httpOptions = {
+    headers: new HttpHeaders({
+      //'Content-Type': 'application/json',
+
+      // "ACCEPT": "application/json;odata=verbose",
+      // "content-type": "application/json;odata=verbose"
+
+      "Accept": "application/json; odata=verbose",
+      "Content-Type": "application/json; odata=verbose",
+      "X-HTTP-Method": "MERGE",
+      'IF-MATCH': "*"
+    }),
+  };
+
+
+  constructor(
+    private sharepointlistService: SharepointlistService,
+    private _actRoute: ActivatedRoute,
+    private websocketService: WebsocketService,
+    private httpClient: HttpClient,
+    elRenderer: Renderer2
+    ) { this.elementRenderer = elRenderer}
+    
+
+  // updateLocalStorage(){
+  //    const writeToFile = this.clickedDashboardInfo.config['WfName'] +'/'+  this.clickedDashboardInfo.config['MasterListInfo'].name +'/recent.json' ;
+  //    const config ={
+  //     proName: this.clickedDashboardInfo.config['WfName'],
+  //     fileName: writeToFile
+  //    }
+
+  //    return new Promise((resolve, reject)=>{
+  //     if(this.clickedDashboardInfo.mapedData.d.length >0){     
+        
+  //       const emitData:any = new Observable(emitDataOutput =>{ 
+  //         const emitService = this.websocketService.emit('updateData', (this.clickedDashboardInfo.mapedData.d).slice(0, 20), config);         
+  //         emitDataOutput.next(emitService);
+
+  //         emitDataOutput.next(emitData.unsubscribe());
+  //       })
+
+  //       emitData.subscribe(res => {
+  //         //res;
+  //       })
+
+  //       emitData.unsubscribe();
+  //       //this.websocketService.emit('updateData', (this.clickedDashboardInfo.mapedData.d).slice(0, 20), config);
+  //       //resolve("updateData successfull !"); 
+
+  //       reject("updateData successfull !");
+  //     }else{
+  //        console.log("Mapped Data is not available to update with !")
+  //      }      
+  //   })     
+  // }
+
+  getMappedData(){ 
+    //========mapping for EmployeeReimbursement===========  
+    return new Promise((resolve, reject)=>{
+      if(this.clickedDashboardInfo.wfName == 'EmployeeReimbursement'){
+        const mapedData = (JSON.parse((JSON.stringify(this.rowData)))).map((e:any) => ({
+          Title: e.Title,
+          ID: e.ID,
+          GUID: e.GUID,
+          Modified: e.Modified,
+          Created: e.Created,
+          Status: e.Status,
+          PendingWith: { ID: e.PendingWith.ID, Title: e.PendingWith.Title },
+          Author: { ID: e.Author.ID, Title: e.Author.Title, Office: e.Author.Office, JobTitle: e.Author.JobTitle },
+          EmployeeId: e.EmployeeId,
+          Entitlement: e.Entitlement,
+          GLCode: e.GLCode,
+          CostCenter: e.CostCenter,
+          TotalReimbursementAmount: e.TotalReimbursementAmount,
+          ItemName: e.ItemName
+        })) 
+  
+        //update local in memory from storage by recently fetched data from SP list 
+        this.clickedDashboardInfo.mapedData.d = mapedData;
+  
+        setTimeout(function(){ 
+          //======performane testing =====
+          const startForEach = performance.now()
+          mapedData.forEach((x:any) => (x + x) * 10000000000)
+          const endForEach = performance.now()
+          console.log(`Speed [forEach]: ${endForEach - startForEach} miliseconds`)
+  
+          const startMap = performance.now()
+          mapedData.map((x:any) => (x + x) * 10000000000)
+          const endMap = performance.now()
+          console.log(`Speed [map]: ${endMap - startMap} miliseconds`)
+          //-----------------------  
+        }, 1000);
+
+        resolve(mapedData);
+        return mapedData;
+      }
+      
+      else if(this.clickedDashboardInfo.wfName == 'MobileHandsetRequests'){
+        const mapedData = (JSON.parse((JSON.stringify(this.rowData)))).map((e:any) => ({
+          Title: e.Title,
+          ID: e.ID,
+          GUID: e.GUID,
+          Modified: e.Modified,
+          Created: e.Created,
+          Status: e.Status,
+          PendingWith: { ID: e.PendingWith.ID, Title: e.PendingWith.Title },
+          Author: { ID: e.Author.ID, Title: e.Author.Title, Office: e.Author.Office, JobTitle: e.Author.JobTitle },
+          EmployeeId: e.EmployeeId,
+          Justification: e.Justification
+        })) 
+  
+        //update local in memory from storage by recently fetched data from SP list 
+        this.clickedDashboardInfo.mapedData.d = mapedData;
+  
+        setTimeout(function(){ 
+          //======performane testing =====
+          const startForEach = performance.now()
+          mapedData.forEach((x:any) => (x + x) * 10000000000)
+          const endForEach = performance.now()
+          console.log(`Speed [forEach]: ${endForEach - startForEach} miliseconds`)
+  
+          const startMap = performance.now()
+          mapedData.map((x:any) => (x + x) * 10000000000)
+          const endMap = performance.now()
+          console.log(`Speed [map]: ${endMap - startMap} miliseconds`)
+          //-----------------------  
+        }, 1000);
+
+        resolve(mapedData);
+        return mapedData;
+      }
+
+      else if(this.clickedDashboardInfo.wfName == 'PoolCarRequisition'){
+        const mapedData = (JSON.parse((JSON.stringify(this.rowData)))).map((e:any) => ({
+          Title: e.Title,
+          ID: e.ID,
+          GUID: e.GUID,
+          Modified: e.Modified,
+          Created: e.Created,
+          Status: e.Status,
+          PendingWith: { ID: e.PendingWith.ID, Title: e.PendingWith.Title },
+          Author: { ID: e.Author.ID, Title: e.Author.Title, Office: e.Author.Office, JobTitle: e.Author.JobTitle },
+          EmployeeId: e.EmployeeId,
+          StartDate: e.StartDate,
+          EndDate: e.EndDate,
+          NoOfDays: e.NoOfDays,
+          StartTime: e.StartTime,
+          EndTime: e.EndTime,
+          TotalHours: e.TotalHours,
+          AccompaniedPersonNo: e.AccompaniedPersonNo,
+          AccompaniedPersonsName: e.AccompaniedPersonsName,
+          PurposeOfVisit: e.PurposeOfVisit
+        })) 
+        this.clickedDashboardInfo.mapedData.d = mapedData;     
+
+        resolve(mapedData);
+        return mapedData;
+      }
+
+      else if(this.clickedDashboardInfo.wfName == 'EmployeeAdvanceRequest'){
+        const mapedData = (JSON.parse((JSON.stringify(this.rowData)))).map((e:any) => ({
+          Title: e.Title,
+          ID: e.ID,
+          GUID: e.GUID,
+          Modified: e.Modified,
+          Created: e.Created,
+          Status: e.Status,
+          PendingWith: { ID: e.PendingWith.ID, Title: e.PendingWith.Title },
+          Author: { ID: e.Author.ID, Title: e.Author.Title, Office: e.Author.Office, JobTitle: e.Author.JobTitle },
+          EmployeeId: e.EmployeeId,
+          Description: e.Description,
+          Amount: e.Amount,
+          Date: e.Date,
+          PurposeType: e.PurposeType,
+          Purpose: e.Purpose,
+          Location: e.Location,
+          AdjustmentAmount: e.AdjustmentAmount,
+          ReasonNotAdjust: e.ReasonNotAdjust,
+          ActualExpenditureDate: e.ActualExpenditureDate,
+          ActualExpenditureAmount: e.ActualExpenditureAmount,
+          ClaimOrRefundAmountDate: e.ClaimOrRefundAmountDate,
+          ClaimOrRefundAmount: e.ClaimOrRefundAmount,
+          MRNO: e.MRNO,
+          IsAdjusted: e.IsAdjusted
+        })) 
+
+  
+        //update local in memory from storage by recently fetched data from SP list 
+        this.clickedDashboardInfo.mapedData.d = mapedData;     
+
+        resolve(mapedData);
+        return mapedData;
+      }
+
+      else if(this.clickedDashboardInfo.wfName == 'EmployeePaintDiscount'){
+        const mapedData = (JSON.parse((JSON.stringify(this.rowData)))).map((e:any) => ({
+          Title: e.Title,
+          ID: e.ID,
+          GUID: e.GUID,
+          Modified: e.Modified,
+          Created: e.Created,
+          Status: e.Status,
+          PendingWith: { ID: e.PendingWith.ID, Title: e.PendingWith.Title },
+          Author: { ID: e.Author.ID, Title: e.Author.Title, Office: e.Author.Office, JobTitle: e.Author.JobTitle },
+          EmployeeId: e.EmployeeId,
+          DeliveryOffice: e.DeliveryOffice
+        })) 
+  
+        //update local in memory from storage by recently fetched data from SP list 
+        this.clickedDashboardInfo.mapedData.d = mapedData;
+
+        resolve(mapedData);
+        return mapedData;
+      }
+
+      else if(this.clickedDashboardInfo.wfName == 'HRServices'){
+        const mapedData = (JSON.parse((JSON.stringify(this.rowData)))).map((e:any) => ({
+          Title: e.Title,
+          ID: e.ID,
+          GUID: e.GUID,
+          Modified: e.Modified,
+          Created: e.Created,
+          Status: e.Status,
+          PendingWith: { ID: e.PendingWith.ID, Title: e.PendingWith.Title },
+          Author: { ID: e.Author.ID, Title: e.Author.Title, Office: e.Author.Office, JobTitle: e.Author.JobTitle },
+          EmployeeId: e.EmployeeId,
+          RequestFor: e.RequestFor,
+          VisitPurpose: e.VisitPurpose,
+          WhenNeed: e.WhenNeed,
+          TaskAssignDate: e.TaskAssignDate,
+          RequestedById: e.RequestedById
+        })) 
+  
+        //update local in memory from storage by recently fetched data from SP list 
+        this.clickedDashboardInfo.mapedData.d = mapedData;
+
+        resolve(mapedData);
+        //return mapedData;
+      }
+    })
+      
+     
+
+          
+    //------mapping ends---------
+  }
+
+  async getGridReadyprocesses(){
+    try{
+      //await this.getSelectedDashboardInfo(this.clickedDashboardInfo);
+      this.listInfo.top = 200000;
+      await this.getRowData(this.clickedDashboardInfo);
+      await this.getTitleTag(this.rowData);
+      // # map data of this dashboard SP list  #
+      await this.getMappedData();
+      // # emit to loc Server to strore in loc file #
+      //await this.updateLocalStorage();   
+      this.websocketService.subscribe();   
+    } 
+    catch(err){
+      console.log("Error: " + err)
+    }
+  }
+
+  ngAfterViewInit(){
+    console.log('ngAfterViewInit called before onGridReady() and after ngOnInit() ...............');    
+  }
+
+  onGridReady(params:any) {
+
+    this.mpTG.gridApi = params.api;
+    this.mpTG.gridColumnApi = params.columnApi;
+
+    //======= late loading with all row data start ====
+    this.listInfo.top = 200000;    
+
+    //this.getGridReadyprocesses();
+    
+    this.onGridReadyParamsApi = this.mpTG.gridApi; //for voice recognition 
+    
+    //====for editing ===
+    
+    this.mpTG.rowNodeApi = params.rowNodeApi;
+    this.mpTG.editType = 'fullRow';
+    
+  }
+
+  createColDef(i:any) {
+
+    const htmlEleRenderer = this.elementRenderer;
+
+    return new Promise((resolve, reject)=>{    
+    
+        this.dashboardsListsInfo[i.listIndex].MasterDetailViewColDef.forEach((element:any, index:number ) => {
+          
+          const ftype = element.fldType;
+          const eGui: HTMLDivElement = htmlEleRenderer.createElement('div');          
+          const mpTgColDef = new ColumnDefinition(i, element, eGui);    
+          return this.mpTG.columnDefs.push(mpTgColDef.fieldMapper(element));          
+    
+        });
+
+        resolve(this.mpTG.columnDefs);
+
+    })    
+  }
+
+
+
+  // importLocalStorageData(){
+
+  //   return new Promise((resolve, reject)=>{
+
+  //     //let recMstLocFil = 'src/assets/businessprocesslocaldata/'+ this.clickedDashboardInfo.wfName +'/'+ this.clickedDashboardInfo.config['MasterListInfo'].name +'/recent.json';
+      
+  //     const recMstLocFilImport = import('src/assets/businessprocesslocaldata/'+ this.clickedDashboardInfo.wfName +'/'+ this.clickedDashboardInfo.config['MasterListInfo'].name +'/recent.json');
+  //     //let recMstLocFilImport = import('src/assets/businessprocesslocaldata/'+ this.clickedDashboardInfo.wfName +'/'+ this.clickedDashboardInfo.config['MasterListInfo'].name +'/recent.json');
+
+  //     recMstLocFilImport.then(res => {
+  //       if( res.default.length > 0){ //check wheather target file includes any array with no item
+  //         this.clickedDashboardInfo.recMstLocDat.d = res.default;
+  //         resolve(res.default);
+  //       }else{
+  //         this.getSelectedDashboardInfo(this.clickedDashboardInfo).then(res=>{
+  //           this.getRowData(this.clickedDashboardInfo).then(res =>{
+  //             resolve(res);
+  //           });
+  //         });        
+  //       } 
+  //     })
+      
+          
+     
+  //     // if(this.clickedDashboardInfo.wfName == 'PoolCarRequisition'){
+  //     //   import('src/assets/businessprocesslocaldata/PoolCarRequisition/PoolCarRequisitionInfo/recent.json').then(data => {
+  //     //     if( data.default.length > 0){ //check wheather target file includes any array with no item
+  //     //       this.clickedDashboardInfo.recMstLocDat.d = data.default;
+  //     //       resolve(data.default);
+  //     //     }     
+  //     //   });
+  //     // }
+
+  //     // else if(this.clickedDashboardInfo.wfName == 'EmployeePaintDiscount'){
+  //     //   import('src/assets/businessprocesslocaldata/EmployeePaintDiscount/EmpPaintDiscountRequest/recent.json').then(data => {
+  //     //     if( data.default.length > 0){ //check wheather target file includes any array with no item
+  //     //       this.clickedDashboardInfo.recMstLocDat.d = data.default;
+  //     //       resolve(data.default);
+  //     //     }else{
+  //     //       this.getSelectedDashboardInfo(this.clickedDashboardInfo).then(res=>{
+  //     //         this.getRowData(this.clickedDashboardInfo).then(res=>{
+  //     //           resolve(res);
+  //     //         });
+  //     //       });        
+  //     //     }      
+  //     //   });
+  //     // }
+
+  //     // else if(this.clickedDashboardInfo.wfName == 'HRServices'){
+  //     //   import('src/assets/businessprocesslocaldata/HRServices/HRServices/recent.json').then(data => {
+  //     //     if( data.default.length > 0){ //check wheather target file includes any array with no item
+  //     //       this.clickedDashboardInfo.recMstLocDat.d = data.default;
+  //     //       resolve(data.default);
+  //     //     }else{
+  //     //       this.getSelectedDashboardInfo(this.clickedDashboardInfo).then(res=>{
+  //     //         this.getRowData(this.clickedDashboardInfo).then(res=>{
+  //     //           resolve(res);
+  //     //         });
+  //     //       });        
+  //     //     }       
+  //     //   });
+  //     // }
+      
+  //     // else if(this.clickedDashboardInfo.wfName == 'EmployeeReimbursement'){
+  //     //   import('src/assets/businessprocesslocaldata/EmployeeReimbursement/ReimburseMaster/recent.json').then(data => {
+  //     //     if( data.default.length > 0){ //check wheather target file includes any array with no item
+  //     //       this.clickedDashboardInfo.recMstLocDat.d = data.default;
+  //     //       resolve(data.default);
+  //     //     }else{
+  //     //       this.getSelectedDashboardInfo(this.clickedDashboardInfo).then(res=>{
+  //     //         this.getRowData(this.clickedDashboardInfo).then(res=>{
+  //     //           resolve(res);
+  //     //         });
+  //     //       });        
+  //     //     }      
+  //     //   });
+  //     // }
+  //     // else if(this.clickedDashboardInfo.wfName == 'MobileHandsetRequests'){
+  //     //   import('src/assets/businessprocesslocaldata/MobileHandsetRequests/MobileHandsetRequests/recent.json').then(data => {
+  //     //     if( data.default.length > 0){ //check wheather target file includes any array with no item
+  //     //       this.clickedDashboardInfo.recMstLocDat.d = data.default;
+  //     //       resolve(data.default);
+  //     //     }else{
+  //     //       this.getSelectedDashboardInfo(this.clickedDashboardInfo).then(res=>{
+  //     //         this.getRowData(this.clickedDashboardInfo).then(res=>{
+  //     //           resolve(res);
+  //     //         });
+  //     //       });        
+  //     //     }       
+  //     //   });
+  //     // }
+
+  //     // else if(this.clickedDashboardInfo.wfName == 'MobileHandsetRequests'){
+  //     //   import('src/assets/businessprocesslocaldata/MobileHandsetRequests/MobileHandsetRequests/recent.json').then(data => {
+  //     //     if( data.default.length > 0){ //check wheather target file includes any array with no item
+  //     //       this.clickedDashboardInfo.recMstLocDat.d = data.default;
+  //     //       resolve(data.default);
+  //     //     }else{
+  //     //       this.getSelectedDashboardInfo(this.clickedDashboardInfo).then(res=>{
+  //     //         this.getRowData(this.clickedDashboardInfo).then(res=>{
+  //     //           resolve(res);
+  //     //         });
+  //     //       });        
+  //     //     }       
+  //     //   });
+  //     // }
+
+  //     // else{
+  //     //   this.getSelectedDashboardInfo(this.clickedDashboardInfo).then(res=>{
+  //     //     this.getRowData(this.clickedDashboardInfo).then(res=>{
+  //     //       resolve(res);
+  //     //     });
+  //     //   });        
+  //     // }
+
+       
+  //   })
+    
+  // }
+
+  getRecentMstrLocalData(){
+    return new Promise((resolve, reject)=>{
+      if(this.clickedDashboardInfo.acessPermission == 'Public'){      
+        if( this.clickedDashboardInfo.recMstLocDat.d.length > 0){ //check wheather target file includes any array with no item
+          this.rowData = this.clickedDashboardInfo.recMstLocDat.d;
+          resolve(this.clickedDashboardInfo.recMstLocDat.d);
+        }else{
+          this.getRowData(this.clickedDashboardInfo).then(res=>{
+            resolve(res);
+          });
+        } 
+      }
+      else if(this.clickedDashboardInfo.acessPermission == 'Protected'){      
+        if( this.clickedDashboardInfo.recMstLocDat.d.length > 0){ //check wheather target file includes any array with no item
+          
+          if(this.logedInUser.access == 'FullAccess'){             
+            const myLocationData = (this.clickedDashboardInfo.recMstLocDat.d).filter(item =>{
+                return item['Author']['Office'] == this.logedInUser.office;
+              });
+            this.rowData = myLocationData;
+            resolve(myLocationData);
+          }
+        }else{
+          this.getRowData(this.clickedDashboardInfo).then(res=>{
+            resolve(res);
+          });
+        } 
+      }
+      else{
+        this.rowData = [];
+        resolve('Un authorized access !!');
+      }
+    })
+  }
+
+
+
+  async getRowData(i:any) {
+
+    // const listname = i.config.MasterListInfo.name;
+    // const selQry = i.config.MasterListInfo.select;
+    // const itmNum = this.listInfo.top;
+    // let apiUrl = `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('${listname}')/items?&$top=${itmNum}&$select=${selQry} `; 
+
+    //================
+    const mstListname = i.config.MasterListInfo.name;
+    const mstSelQry = i.config.MasterListInfo.select;
+
+    const detListname = i.config.DetailsListInfo[0].name;
+    const detSelQry = i.config.DetailsListInfo[0].select;
+
+    const detList2name = i.config.DetailsListInfo[1].name;
+    const detSelQry2 = i.config.DetailsListInfo[1].select;
+
+    let mstApiUrl = "https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('" + mstListname + "')/items?&$top=2000000&$select=" + mstSelQry + "";
+    let detApiUrl = "https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('" + detListname + "')/items?&$top=2000000&$select=" + detSelQry + "";
+    let detApiUrl2 = "https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('" + detList2name + "')/items?&$top=2000000&$select=" + detSelQry2 + "";
+
+    let mstTblKeyFld = "";
+    let detTblKeyFld = "";
+    let detTblKeyFld2 = "";
+
+    if (Object.prototype.hasOwnProperty.call(this.dashboardsListsInfo[i.listIndex].MasterListInfo, 'primaryKey') && this.dashboardsListsInfo[i.listIndex].MasterListInfo.primaryKey != "") {
+      mstTblKeyFld = this.dashboardsListsInfo[i.listIndex].MasterListInfo.primaryKey;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(this.dashboardsListsInfo[i.listIndex].DetailsListInfo[0], 'primaryKey') && this.dashboardsListsInfo[i.listIndex].DetailsListInfo[0].primaryKey != "") {
+      detTblKeyFld = this.dashboardsListsInfo[i.listIndex].DetailsListInfo[0].primaryKey;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(this.dashboardsListsInfo[i.listIndex].DetailsListInfo[1], 'primaryKey') && this.dashboardsListsInfo[i.listIndex].DetailsListInfo[1].primaryKey != "") {
+      detTblKeyFld2 = this.dashboardsListsInfo[i.listIndex].DetailsListInfo[0].primaryKey;
+    }
+
+    //--------------
+    return new Promise((resolve, reject)=>{ 
+      if(this.logedInUser.access != 'NoAccess'){
+
+        if(this.logedInUser.office != "Corporate"){
+          mstApiUrl = `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('${mstListname}')/items?&$top=2000000&$select=${mstSelQry}`; 
+          detApiUrl = `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('${detListname}')/items?&$top=2000000&$select=${detSelQry}`; 
+          detApiUrl2 = `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('${detList2name}')/items?&$top=2000000&$select=${detSelQry2}`; 
+
+          // mstApiUrl = `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('${mstListname}')/items?&$top=2000000&$select=${mstSelQry}&$filter=substringof('${this.logedInUser.office}', Author/Office ) `; 
+          // detApiUrl = `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('${detListname}')/items?&$top=2000000&$select=${detSelQry}&$filter=substringof('${this.logedInUser.office}', Author/Office ) `; 
+          // detApiUrl2 = `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('${detList2name}')/items?&$top=2000000&$select=${detSelQry2}&$filter=substringof('${this.logedInUser.office}', Author/Office ) `; 
+        }
+          try {
+            //==========implementing forkJoin ============
+            from(forkJoin({
+              masterTbl: this.httpClient.get<any[]>(mstApiUrl),
+              exclusiveTbl: this.httpClient.get<any[]>(detApiUrl),
+              exclusiveTbl2: this.httpClient.get<any[]>(detApiUrl2)
+            }))
+            .subscribe(({masterTbl, exclusiveTbl, exclusiveTbl2 }) => { 
+              
+              const detTblDta = (JSON.parse(JSON.stringify(exclusiveTbl))).value;
+              const detTblDta2 = (JSON.parse(JSON.stringify(exclusiveTbl2))).value;
+              //this.rowData = detTblDta;
+              const mstTblDta = (JSON.parse(JSON.stringify(masterTbl))).value; 
+
+              let computerDetailDta:any = [];
+              let installmentDta:any = [];
+              
+              //===========grouping details Tbl1 data ===============
+              let groups:any = [];
+              let groupsObjArr:any = [];
+              //this.allGroups = groups;
+              from(detTblDta)
+              .pipe(
+                groupBy((workflow: any) => workflow.Title),
+                mergeMap((workflowsGroup$: GroupedObservable<string, ComDetail>) =>
+                  workflowsGroup$.pipe(
+                    reduce((acc: Array<ComDetail>, cur: ComDetail) => [...acc, cur], []),
+                    map((arr: Array<ComDetail>) => {
+
+                      let comDetailAry:any = [];
+                      let finalObj:any = {};
+
+                      // loop elements of the array 
+                      for(let i = 0; i < arr.length; i++ ) {
+                        
+                        if(arr[i].EquipmentType == "Computer"){
+                          const comObj = {
+                            ComEquipmentType: arr[i].EquipmentType, 
+                            ComDescription:arr[i].Description, 
+                            ComAssetValue:arr[i].AssetValue,
+                            ComAmountTk: arr[i].AmountTk,
+                            ComEndDate: arr[i].EndDate,
+                            ComGallonQty: arr[i].GallonQty
+                          }
+                          Object.assign(finalObj, comObj);
+                        }
+                        else if(arr[i].EquipmentType == "Tinting"){
+                          const tinObj = {
+                            TinEquipmentType: arr[i].EquipmentType, 
+                            TinDescription:arr[i].Description, 
+                            TinAssetValue:arr[i].AssetValue,
+                            TinAmountTk: arr[i].AmountTk,
+                            TinEndDate: arr[i].EndDate,
+                            TinGallonQty: arr[i].GallonQty
+                          }
+                          Object.assign(finalObj, tinObj);
+                        }
+                        else if(arr[i].EquipmentType == "Shaker"){
+                          const proObj = {
+                            ShkEquipmentType: arr[i].EquipmentType, 
+                            ShkDescription:arr[i].Description, 
+                            ShkAssetValue:arr[i].AssetValue,
+                            ShkAmountTk: arr[i].AmountTk,
+                            ShkEndDate: arr[i].EndDate,
+                            ShkGallonQty: arr[i].GallonQty
+                          }
+                          Object.assign(finalObj, proObj);
+                        }
+                        else if(arr[i].EquipmentType == "Installation Back Option"){
+                          const proObj = {
+                            IBOEquipmentType: arr[i].EquipmentType, 
+                            IBODescription:arr[i].Description, 
+                            IBOAssetValue:arr[i].AssetValue,
+                            IBOAmountTk: arr[i].AmountTk,
+                            IBOEndDate: arr[i].EndDate,
+                            IBOGallonQty: arr[i].GallonQty
+                          }
+                          Object.assign(finalObj, proObj);
+                        }
+                        else if(arr[i].EquipmentType == "Monitor"){
+                          const proObj = {
+                            MonEquipmentType: arr[i].EquipmentType, 
+                            MonDescription:arr[i].Description, 
+                            MonAssetValue:arr[i].AssetValue,
+                            MonAmountTk: arr[i].AmountTk,
+                            MonEndDate: arr[i].EndDate,
+                            MonGallonQty: arr[i].GallonQty
+                          }
+                          Object.assign(finalObj, proObj);
+                        }
+                        else if(arr[i].EquipmentType == "UPS"){
+                          const proObj = {
+                            UpsEquipmentType: arr[i].EquipmentType, 
+                            UpsDescription:arr[i].Description, 
+                            UpsAssetValue:arr[i].AssetValue,
+                            UpsAmountTk: arr[i].AmountTk,
+                            UpsEndDate: arr[i].EndDate,
+                            UpsGallonQty: arr[i].GallonQty
+                          }
+                          Object.assign(finalObj, proObj);
+                        }
+                        else if(arr[i].EquipmentType == "ACD"){
+                          const acdObj ={
+                            ACDEquipmentType: arr[i].EquipmentType, 
+                            ACDDescription:arr[i].Description, 
+                            ACDAssetValue:arr[i].AssetValue,
+                            ACDAmountTk: arr[i].AmountTk,
+                            ACDEndDate: arr[i].EndDate,
+                            ACDGallonQty: arr[i].GallonQty
+                          }
+                          Object.assign(finalObj, acdObj);
+                        }
+                        //Object.assign(finalObj, arr[i]);
+
+                        
+                      }
+
+                      Object.assign(finalObj, { 'ReqTitle': arr[0].Title}); 
+
+                      comDetailAry.push(finalObj);
+                     
+                      return {
+                        key: arr[0].Title,
+                        value: comDetailAry
+                      };
+                    }),
+                    tap((data: ComDetailGroup) => {
+                      groups.push(data);
+                      groupsObjArr.push(data.value[0]); 
+                      //console.log(data); 
+                      //console.log(groups.length);
+                    })
+                    //tap((data: ComDetailGroup) => {groups.push(data); console.log(data); console.log(groups.length)})
+                  )
+                )
+              )
+              .subscribe(()=>{
+                computerDetailDta = groupsObjArr;             
+                //computerDetailDta = groups; 
+              });
+
+              //------------- grouping ends ------------
+
+              //===========grouping details Tbl2 data ===============
+              let groups2:any = [];
+              let groupsObjArr2:any = [];
+              //this.allGroups = groups;
+              from(detTblDta2)
+              .pipe(
+                groupBy((workflow: any) => workflow.Title),
+                mergeMap((workflowsGroup$: GroupedObservable<string, IInsDetail>) =>
+                  workflowsGroup$.pipe(
+                    reduce((acc: Array<IInsDetail>, cur: IInsDetail) => [...acc, cur], []),
+                    map((arr: Array<IInsDetail>) => {
+
+                      let comDetailAry2:any = [];
+                      let finalObj2:any = {};
+
+                      // loop elements of the array 
+                      for(let i = 0; i < arr.length; i++ ) {
+                        
+                        if(arr[i].SalesType == "Non-CB Products (Ready made)"){
+                          const comObj = {
+                            ReadySalesType: arr[i].SalesType, 
+                            ReadyPermonthFirst:arr[i].PermonthFirst, 
+                            ReadyPerMonth2nd:arr[i].PerMonth2nd
+                          }
+                          Object.assign(finalObj2, comObj);
+                        }
+                        else if(arr[i].SalesType == "Non-CB Tinting"){
+                          const tinObj = {
+                            TinSalesType: arr[i].SalesType, 
+                            TinPermonthFirst:arr[i].PermonthFirst, 
+                            TinPerMonth2nd:arr[i].PerMonth2nd
+                          }
+                          Object.assign(finalObj2, tinObj);
+                        }
+                        else if(arr[i].SalesType == "CB Bases & Colorants"){
+                          const proObj = {
+                            CBCSalesType: arr[i].SalesType, 
+                            CBCPermonthFirst:arr[i].PermonthFirst, 
+                            CBCPerMonth2nd:arr[i].PerMonth2nd
+                          }
+                          Object.assign(finalObj2, proObj);
+                        } 
+                      }
+
+                      Object.assign(finalObj2, { 'ApplTitle': arr[0].Title}); 
+
+                      comDetailAry2.push(finalObj2);
+                     
+                      return {
+                        key: arr[0].Title,
+                        value: comDetailAry2
+                      };
+                    }),
+                    tap((data: IInsDetailGroup) => {
+                      groups2.push(data);
+                      groupsObjArr2.push(data.value[0]); 
+                      //console.log(data); 
+                      //console.log(groups.length);
+                    })
+                    //tap((data: ComDetailGroup) => {groups.push(data); console.log(data); console.log(groups.length)})
+                  )
+                )
+              )
+              .subscribe(()=>{
+                installmentDta = groupsObjArr2;             
+                //computerDetailDta = groups; 
+              });
+
+              //------------- 2nd grouping ends ------------
+
+              const installmentMasterData = mstTblDta.map((m:any) => ({                                     
+                ...m,
+                ...installmentDta.find((d:any) => d['ApplTitle'] == m['Title']),
+                ...computerDetailDta.find((t2:any) => t2['ReqTitle'] == m['Title'])
+              }));             
+
+              this.rowData = installmentMasterData;
+              resolve(this.rowData);
+            });
+            //----------- forkJoin ends -------
+            
+          } catch (e) {
+            reject(e);
+            console.log(e);
+          }
+      }else{
+        alert("Access Denied !!!");
+        reject("No Data !");
+      }
+
+    })
+  }
+
+  getSelectedDashboardInfo(i:any) {
+    return new Promise((resolve, reject)=>{  
+      this.listInfo.name = this.dashboardsListsInfo[i.listIndex].MasterListInfo.name;
+      this.listInfo.select = this.dashboardsListsInfo[i.listIndex].MasterListInfo.select;
+      this.listInfo.expand = this.dashboardsListsInfo[i.listIndex].MasterListInfo.expand;
+      this.listInfo.orderByPrm = this.dashboardsListsInfo[i.listIndex].MasterListInfo.orderByPrm;
+      this.listInfo.orderByVal = this.dashboardsListsInfo[i.listIndex].MasterListInfo.orderByVal;
+      //this.listInfo.top = this.dashboardsListsInfo[i.listIndex].MasterListInfo.top;
+
+      this.sharepointlistService.getEmpIdNdOffice().then((res) => {
+        if (res.Office == "Corporate") {
+          this.listInfo.filter = '';
+        }
+        else {
+          this.listInfo.filter = "substringof('" + res.Office + "' ,Author/Office)";
+        }     
+      });
+
+      resolve(this.listInfo);
+    })
+    
+  }
+
+  ifAuthGroupsMember(i:any): boolean{
+    //should be implemented;
+    return false;    
+  }
+
+  // getSocketConnectionWithSPServer(){ 
+  //   //=============socket.io implementation strat ===========
+  //   const webAbsoluteUrl = window.location.origin;
+  //   //let webAbsoluteUrl = 'https://localhost';
+  //   const serPort = window.location.protocol == "https:" ? 3000 : 8000;
+  //   //let serPort = 3000;
+  //   const serverUrl = webAbsoluteUrl + ":" + serPort;
+
+  //   // let serPort = 443;
+  //   // let serverUrl = "https://localhost:" + serPort;
+
+  //   this.socket = io('https://portaldv.bergerbd.com/leaveauto/Lists/ReimburseMaster/AllItems.aspx', {
+  //       // below config is mendatory and should not be changed ---set to false only if you use self-signed certificate !
+  //       transports: ['websocket'],
+  //       rejectUnauthorized: false,
+  //       secure: false,
+  //       withCredentials: false,
+  //       forceNew: true,
+  //       timeout: 5000, //before connect_error and connect_timeout are emitted.
+  //   });     
+    
+  //   //======check if connected ===
+  //   this.socket.on("connect", () => {
+  //     if(this.socket.connected){
+  //       console.log(`Connect SP server successfull !`);
+  //     }
+  //     else{console.log(`Unable to connect local server !`);}
+  //   });
+
+  //   this.socket.on('item:added', (data) => {
+  //     console.log("data.customProperties.id: "+ data.customProperties.id);
+  //   });
+
+    
+  // }
+
+  //==step 5==
+
+  // getSocketConnection(wfName){ 
+  //     //=============socket.io implementation strat ===========
+  //     const webAbsoluteUrl = window.location.origin;
+  //     //let webAbsoluteUrl = 'https://localhost';
+  //     const serPort = window.location.protocol == "https:" ? 3000 : 8000;
+  //     //let serPort = 3000;
+  //     const serverUrl = webAbsoluteUrl + ":" + serPort;
+
+  //     // let serPort = 443;
+  //     // let serverUrl = "https://localhost:" + serPort;
+
+  //     this.socket = io( serverUrl, {
+  //         // below config is mendatory and should not be changed ---set to false only if you use self-signed certificate !
+  //         transports: ['websocket'],
+  //         rejectUnauthorized: false,
+  //         secure: false,
+  //         withCredentials: false,
+  //         forceNew: true,
+  //         timeout: 5000, //before connect_error and connect_timeout are emitted.
+  //     });     
+      
+  //     //======check if connected ===
+  //     this.socket.on("connect", () => {
+  //       if(this.socket.connected){
+  //         this.websocketService.listen(wfName).subscribe((data)=>{
+  //           console.log(`Auto received data from server with listen event: ${data}`);
+  //         });
+  //       }
+  //       else{console.log(`Unable to connect local server`);}
+  //     });
+
+  //     this.socket.on(wfName + 'Back', (msg)=>{
+  //       //let ms = JSON.stringify(msg);
+  //       console.log("Back MasterData from Server: " + msg);
+  //     });      
+
+  //     this.socket.on(wfName + '-updateDataStatus', (msg)=>{
+  //       //let ms = JSON.stringify(msg);
+  //       console.log("Reply of updateDataStatus from Server: " + msg);
+  //     });
+
+      
+  // }
+
+  //====step 2==
+  dashboardGridDef(){   
+    return new Promise((resolve, reject)=>{
+      this.mpTG.columnDefs = [];
+      //=============set column definition start ===========
+      this.mpTG.defaultColDef = {
+        flex: 1,
+        minWidth: 50,
+        resizable: true, //to resize; add resizable: false to any individual column to disable resizingng that col only
+        enableValue: true,
+        enableRowGroup: true,
+        enablePivot: true,
+        sortable: true,
+        filter: true,
+        editable: true,
+      };
+
+      this.mpTG.detailCellRenderer = 'myDetailCellRenderer';
+      //this.mpTG.frameworkComponents = { myDetailCellRenderer: MasterdetailsrendererComponent };
+      this.mpTG.frameworkComponents = { };
+      //--------for action btn link rendering start -------
+      this.mpTG.rowGroupPanelShow = 'always';
+
+      //=========for setting features on every subgroup items start=======
+      // this.mpTG.autoGroupColumnDef = {
+      //   headerName: 'Group',
+      //   field: 'RequestStatus',
+      //   minWidth: 30,
+      //   cellRenderer: 'agGroupCellRenderer',
+      //   cellRendererParams: {
+      //     //  checkbox: true
+      //   },
+      // };
+      //------------ subitem fetures ends -----------
+      this.mpTG.rowHeight = 24;  
+      this.mpTG.masterDetail = true;
+      this.mpTG.rowSelection = "multiple";
+      this.mpTG.animateRows = true;
+      this.mpTG.suppressDragLeaveHidesColumns = true;
+      this.mpTG.groupUseEntireRow = true;
+      this.mpTG.paginationPageSize = 13;
+      this.mpTG.floatingFilter = true;
+      this.mpTG.cacheQuickFilter = true;
+      this.mpTG.enableCharts = true;
+      this.mpTG.enableRangeSelection = true;
+      this.mpTG.suppressRowClickSelection = true;
+
+      this.components = {
+        loadingRenderer: function (params:any) {
+          if (params.value !== undefined) {
+            return params.value;
+          } else {
+            return "<img src=\"https://raw.githubusercontent.com/ag-grid/ag-grid/master/grid-packages/ag-grid-docs/src/images/loading.gif\">";
+          }
+        },
+      };
+      //-------------col def ends -------------------
+      resolve(this.mpTG);
+    }) 
+    
+    
+  }
+
+  //=======step-1
+  async checkAuthorization(){ 
+    return new Promise((resolve, reject)=>{
+      this._actRoute.paramMap.subscribe((url:any) => {
+        const wfName = url.get('id');
+        //this.dashboardsListsInfo[0].wfName = wfName;
+        if (wfName) { 
+          this.clickedDashboardInfo.wfName = wfName;          
+          this.clickedDashboardInfo.listIndex = this.dashboardsListsInfo.findIndex((item:any) => item.WfName === wfName);
+          const wfIndex = this.clickedDashboardInfo.listIndex;
+          // # pushing clickedDashboardInfo from 'this.dashboardsListsInfo' file to in memory #
+          this.clickedDashboardInfo.config = this.dashboardsListsInfo[wfIndex]; 
+          
+        }
+        else{
+          alert("Workflow Name not found !");
+          return false;
+        }
+        return this.clickedDashboardInfo;
+      });
+
+      if(this.dashboardsListsInfo[this.clickedDashboardInfo.listIndex].AcessPermission == 'Public'){
+        this.clickedDashboardInfo.acessPermission = 'Public';
+        this.logedInUser.access = 'FullAccess';
+        resolve(this.logedInUser);
+      }else{
+        this.sharepointlistService.getEmpIdNdOffice().then((res:any)=>{
+          this.logedInUser.aDId = res.ADId;
+          this.logedInUser.empID = res.EmpID;
+          this.logedInUser.office = res.Office;
+        }).then((res:any):void=>{
+
+          const aDIdGrp = this.dashboardsListsInfo[this.clickedDashboardInfo.listIndex].AuthUsersADId;
+          const empIdGrp = this.dashboardsListsInfo[this.clickedDashboardInfo.listIndex].AuthUsersEmpId;
+          const authGrp = this.dashboardsListsInfo[this.clickedDashboardInfo.listIndex].AuthGroups;
+              
+          if(aDIdGrp.length > 0 && aDIdGrp.includes(this.logedInUser.aDId)){
+            this.clickedDashboardInfo.acessPermission = 'Protected';
+            this.logedInUser.access = 'FullAccess';
+            resolve(this.logedInUser);
+          }
+          else if(empIdGrp.length >0 && empIdGrp.includes(this.logedInUser.empID)){
+            this.clickedDashboardInfo.acessPermission = 'Protected';
+            this.logedInUser.access = 'FullAccess';
+            resolve(this.logedInUser);
+          }
+          else if(authGrp.length > 0 ){ 
+            const apiUrl = `https://portal.bergerbd.com/_api/web/sitegroups/getByName('${authGrp}')/Users?$filter=Id eq ${this.logedInUser.aDId}` ;
+            
+            const isInAuthGrp = this.httpClient.get<any[]>(apiUrl).pipe(map((items:any)=>{              
+              return (items.value.length > 0 )? true: false;
+            }));
+
+            if(isInAuthGrp){
+              this.clickedDashboardInfo.acessPermission = 'Protected';
+              this.logedInUser.access = 'FullAccess';
+              resolve(this.logedInUser);
+            }else{
+              alert("Unauthorized access !!!");
+              reject(this.logedInUser);
+              //return false;
+            }
+           
+           
+            // this.httpClient.get<any[]>(apiUrl).subscribe(
+            //   (items:any) => {
+            //     if(items.value.length > 0 ){
+            //       this.clickedDashboardInfo.acessPermission = 'Protected';
+            //       this.logedInUser.access = 'FullAccess';
+            //       resolve(this.logedInUser);
+            //     }else{
+            //       alert("Unauthorized access !!");
+            //       reject(this.logedInUser);
+            //       return false;
+            //     }
+            //     return this.logedInUser;
+            //   }              
+            // ) 
+          }          
+        });         
+      }
+    })
+
+    // return new Promise((resolve, reject)=>{
+    //   this._actRoute.paramMap.subscribe(url => {
+    //     const wfName = url.get('id');
+    //     this.dashboardsListsInfo[0].wfName = wfName;
+    //     if (wfName) { 
+    //       this.clickedDashboardInfo.wfName = wfName;          
+    //       this.clickedDashboardInfo.listIndex = this.dashboardsListsInfo.findIndex((item:any) => item.WfName === wfName);
+    //       const wfIndex = this.clickedDashboardInfo.listIndex;
+    //       // # pushing clickedDashboardInfo from 'this.dashboardsListsInfo' file to in memory #
+    //       this.clickedDashboardInfo.config = this.dashboardsListsInfo[wfIndex];          
+
+          
+
+    //       // # check dashboard view access is Public or Protected # 
+    //       if(this.dashboardsListsInfo[this.clickedDashboardInfo.listIndex].AcessPermission == 'Public'){
+    //         this.clickedDashboardInfo.acessPermission = 'Public';
+    //         this.logedInUser.access = 'FullAccess';
+    //         resolve(this.clickedDashboardInfo);
+    //       }else{
+            
+            
+    //         if(aDIdGrp.length > 0){
+    //           this.ifInAuthUsersADId(aDIdGrp);
+    //         }
+
+    //         if(empIdGrp.length > 0 && this.logedInUser.access != 'FullAccess'){
+    //           this.ifInAuthUsersEmpId(empIdGrp).then();
+    //         }
+
+    //         if(authGrp.length > 0 && this.logedInUser.access != 'FullAccess'){
+    //           this.ifInAuthGroups(authGrp);
+    //         }
+
+    //         if(this.logedInUser.access == 'FullAccess'){
+    //           alert("FullAccess");
+    //         }
+
+           
+            
+
+
+    //         // if(this.ifInAuthUsersADId(aDIdGrp) || this.ifInAuthUsersEmpId(empIdGrp) || this.ifInAuthGroups(authGrp)){
+              
+    //         //   resolve(this.clickedDashboardInfo);
+    //         // }
+
+
+    //         // else{
+    //         //   this.clickedDashboardInfo.acessPermission = 'Unauthorized';
+    //         //   this.logedInUser.access = 'NoAccess';
+    //         //   alert("Unauthorized Access: You have no permission to get access this page ! Please contact with admin for your access.");
+    //         //   reject('NoAccess');
+    //         // } 
+
+    //       }
+
+    //       //resolve(this.clickedDashboardInfo);
+    //     }
+    //     else{
+    //       reject("NoAccess");
+    //     }
+    //   })
+    // })
+    
+  }
+
+  async executeOnInitProcesses(){    
+    try{
+      await this.checkAuthorization();
+      await this.getSelectedDashboardInfo(this.clickedDashboardInfo);
+      //await this.importLocalStorageData();
+      await this.dashboardGridDef();
+      await this.createColDef(this.clickedDashboardInfo);
+      this.listInfo.top = 20;
+      await this.getRowData(this.clickedDashboardInfo);
+      this.listInfo.top = 2000000;
+      await this.getRowData(this.clickedDashboardInfo);
+      await this.getTitleTag(this.rowData);
+      //await this.getRecentMstrLocalData();
+      //await this.getSocketConnection(this.clickedDashboardInfo.wfName);
+
+      //this.getSocketConnectionWithSPServer();
+    } 
+    catch(err){
+      console.log("Error: " + err)
+    }
+  }
+
+  async ngOnInit() {
+    const dbListsInfoUrl = "https://portal.bergerbd.com/Style Library/ColorBankDashboard/ColorBankDashboardV2/assets/dashboardslistsinfo.ts";
+    //const dbListsInfoUrl = "http://localhost:4206/assets/dashboardslistsinfo.ts";
+    this.httpClient.get(dbListsInfoUrl).subscribe(data =>{
+      this.dashboardsListsInfo = data;
+      if(this.dashboardsListsInfo.length >0){
+        this.executeOnInitProcesses();   
+      }else{
+        alert("Fetching List info failed !");
+      }
+    });
+
+    //==================for online dummy data ================
+    // this.rowData$ = this.httpClient
+    //   .get<any[]>('https://www.ag-grid.com/example-assets/row-data.json');
+     
+  }
+
+  getTitleTag(rowData:any){
+    //=========split titleTag =========
+    return new Promise((resolve, reject)=>{
+      if(rowData != undefined){
+        if(Object.prototype.hasOwnProperty.call(rowData[0], 'Title')){
+          if(rowData[0].Title != null && rowData[0].Title != ''){
+            this.dbTagUrlInfo.titleTag = rowData[0].Title.split('-')[0] + "-";
+          }else if(rowData[5].Title != null && rowData[5].Title != ''){
+            this.dbTagUrlInfo.titleTag = rowData[5].Title.split('-')[0] + "-";
+          }else {
+            this.dbTagUrlInfo.titleTag = rowData[10].Title.split('-')[0] + "-";
+          }
+        }
+        else if(Object.prototype.hasOwnProperty.call(rowData[0], 'RequestId')){
+          if(rowData[0].RequestId != null && rowData[0].RequestId != ''){
+            this.dbTagUrlInfo.titleTag = rowData[0].RequestId.split('-')[0] + "-";
+          }else if(rowData[5].Title != null && rowData[5].Title != ''){
+            this.dbTagUrlInfo.titleTag = rowData[5].RequestId.split('-')[0] + "-";
+          }else {
+            this.dbTagUrlInfo.titleTag = rowData[10].RequestId.split('-')[0] + "-";
+          }
+        }
+        else if(Object.prototype.hasOwnProperty.call(rowData[0], 'RequestID')){
+          if(rowData[0].RequestID != null && rowData[0].RequestID != ''){
+            this.dbTagUrlInfo.titleTag = rowData[0].RequestID.split('-')[0] + "-";
+          }else if(rowData[5].Title != null && rowData[5].Title != ''){
+            this.dbTagUrlInfo.titleTag = rowData[5].RequestID.split('-')[0] + "-";
+          }else {
+            this.dbTagUrlInfo.titleTag = rowData[10].RequestID.split('-')[0] + "-";
+          }
+        }
+      }
+      resolve(this.dbTagUrlInfo);
+    })
+    
+  }
+
+  async getDbInfoNdData(){
+    await this.getSelectedDashboardInfo(this.clickedDashboardInfo);
+    //await this.getRowData(this.clickedDashboardInfo);
+
+    await this.getRecentMstrLocalData();
+  }
+
+  //===================== Export Table data to Excel start ==============
+  onBtnExportDataAsExcel() {
+    function rowGroupCallback(params:any) {
+      return params.node.key;
+    }
+
+    this.mpTG.gridApi.exportDataAsExcel({
+      processRowGroupCallback: rowGroupCallback,
+    });
+  }
+  //===================== Export Table data to Excel end ==============
+
+  //=============== Quick central filter function start ========== 
+  //--------method-1: (with angular)--------
+  quickSearch() {
+    this.mpTG.gridApi.setQuickFilter(this.txtOfQuickSearchInpFld);
+  }
+  //--------method-2: (with Jquery)--------required to include oninput=onFilterTextBoxChanged() in html file--------
+  // onFilterTextBoxChanged(){
+  //   this.gridApi.setQuickFilter(document.querySelector('#filter-text-box'));
+  // }
+  //=============== Quick central filter function ends ==========
+
+
+  //============= set row height methods starts 100% working ==============
+  getRowHeight(params:any) {
+    return groupHeight;
+    // if (params.node.group) {
+    //   return groupHeight;
+    // }
+  }
+
+  setGroupHeight(height:any) {
+    groupHeight = height;
+    this.mpTG.rowHeight = height;
+    this.mpTG.gridApi.resetRowHeights();
+  }
+
+  setRowHeight(height:any) {
+    // rowHeight = height;
+    // this.mpTG.gridApi.resetRowHeights();
+
+    this.mpTG.gridApi.forEachNode(function (rowNode:any) {
+      //if (rowNode.data && rowNode.data.country === 'Russia') {
+      // rowHeight = height;
+      // this.mpTG.gridApi.resetRowHeights();  
+      rowNode.setRowHeight(height);
+      //}
+    });
+    this.mpTG.gridApi.onRowHeightChanged();
+  }
+  //------- set row height methods ends ---------------
+
+  //=========== voice recognition start ==========  
+
+  voiceSearch(){
+    
+    alert("Please say any word that you want to search with");
+
+    
+
+    const quickVoiceSearch = (txt:any) => {
+      this.onGridReadyParamsApi.setQuickFilter(txt);
+    }
+
+    if('webkitSpeechRecognition' in window){
+        const vSearch = new webkitSpeechRecognition();
+        vSearch.continuous = false;
+        vSearch.interimresults = false;
+        vSearch.lang = 'en-US';
+        vSearch.start();
+        //const voiceSearchForm = this.formSearch.nativeElement;
+        //const voiceHandler = this.hiddenSearchHandler.nativeElement;
+        //const srcTxtVoiceHandler = this.filterTextBox.nativeElement; // for filter
+        //console.log(voiceSearchForm);
+        vSearch.onresult = function(e:any){
+          //console.log(voiceSearchForm);
+          //voiceHandler.value = e.results[0][0].transcript;
+            vSearch.stop();
+            //console.log(voiceHandler);
+            //alert(e.results[0][0].transcript);
+            
+            this.txtOfQuickSearchInpFld = e.results[0][0].transcript;
+            (document.getElementById('filter-text-box') as HTMLInputElement).value = this.txtOfQuickSearchInpFld;
+            quickVoiceSearch(this.txtOfQuickSearchInpFld);
+
+            
+            //voiceSearchForm.submit();
+        }
+  
+        vSearch.onerror = function(e:any){
+            console.log(e);
+            vSearch.stop();
+        }
+
+        
+        
+    } else {
+      alert("webkitSpeechRecognition is not available.");
+      //console.log(this.state.get(configKey, undefined as any));
+      }
+  }
+
+  viewByVoice(){
+    
+    alert("Please say only the number of your request/application within 2-seconds");
+
+    const quickVoiceSearch = (txt:any) => {
+      this.onGridReadyParamsApi.setQuickFilter(txt);
+
+      let itm = [];
+      let prKey = '';
+
+      const reqDbInfo = this.dashboardsListsInfo[this.clickedDashboardInfo.listIndex];
+
+      if(Object.prototype.hasOwnProperty.call(reqDbInfo.MasterListInfo, 'primaryKey')){
+        prKey = reqDbInfo.MasterListInfo.primaryKey;
+        if(prKey != 'Title'){
+          itm = this.rowData.filter((item:any) => item[prKey] == this.dbTagUrlInfo.titleTag + txt);
+        }
+        else{
+          itm = this.rowData.filter((item:any) => item.Title == this.dbTagUrlInfo.titleTag + txt);
+        }
+      }else{
+        itm = this.rowData.filter((item:any) => item.Title == this.dbTagUrlInfo.titleTag + txt);
+      }
+        
+        (document.getElementById('viewByVoiceText') as HTMLInputElement).value = '        ' + this.dbTagUrlInfo.titleTag + txt;
+        
+        if(reqDbInfo.ViewUrl.qryStrKeyTyp == 'GUID'){
+          
+          this.dbTagUrlInfo.qryStrKeyVal = itm[0].GUID;
+          const url = this.siteAbsoluteUrl +  reqDbInfo.ViewUrl.siteUrl + this.dbTagUrlInfo.qryStrKeyVal + reqDbInfo.ViewUrl.mode;
+          window.open(url, "_blank");
+        }
+        else if(reqDbInfo.ViewUrl.qryStrKeyTyp == 'ID'){
+          this.dbTagUrlInfo.qryStrKeyVal = itm[0].ID;
+          const url = this.siteAbsoluteUrl +  reqDbInfo.ViewUrl.siteUrl + this.dbTagUrlInfo.qryStrKeyVal + reqDbInfo.ViewUrl.mode;
+          window.open(url, "_blank");
+        }
+        
+    }
+
+    if('webkitSpeechRecognition' in window){
+        const vSearch = new webkitSpeechRecognition();
+        vSearch.continuous = false;
+        vSearch.interimresults = false;
+        vSearch.lang = 'en-US';
+        vSearch.start();
+        //const voiceSearchForm = this.formSearch.nativeElement;
+        //const voiceHandler = this.hiddenSearchHandler.nativeElement;
+        //const srcTxtVoiceHandler = this.filterTextBox.nativeElement; // for filter
+        //console.log(voiceSearchForm);
+        vSearch.onresult = function(e:any){
+          //console.log(voiceSearchForm);
+          //voiceHandler.value = e.results[0][0].transcript;
+            vSearch.stop();
+                        
+            this.txtOfQuickSearchInpFld = e.results[0][0].transcript;
+            //(document.getElementById('filter-text-box') as HTMLInputElement).value = this.txtOfQuickSearchInpFld;
+            quickVoiceSearch(this.txtOfQuickSearchInpFld);
+            
+            //voiceSearchForm.submit();
+        }
+  
+        vSearch.onerror = function(e:any){
+            console.log(e);
+            vSearch.stop();
+        }
+
+        
+        
+    } else {
+      alert("webkitSpeechRecognition is not available.");
+      //console.log(this.state.get(configKey, undefined as any));
+      }
+  }
+
+
+
+  clearSelection(){
+    this.mpTG.gridApi.deselectAll();
+    //this.agGrid.api.deselectAll();
+  }
+
+  onPageSizeChanged() {
+    const value = (document.getElementById('page-size') as HTMLInputElement)
+      .value;
+    this.mpTG.gridApi.paginationSetPageSize(Number(value));
+  }
+
+  //#### CRUD operation starts #### ===========
+  async onAddRow() {
+    const params = this.mpTG.grid;
+
+    const columns = this.listInfo;
+
+    let newRow:object = {};
+
+    const colDefArray = this.mpTG.gridApi.columnModel.columnDefs;
+
+    await Promise.all(colDefArray.map(async (el:any) => {
+
+      const keyVal = (el:any) => {
+        return new Promise((res, rej) => {
+          const key = el.field;
+
+          if(key == "ID"){
+            const objEle = {[key]: null};
+            newRow = Object.assign(newRow, objEle)
+          }else{
+            const objEle = {[key]: ""};
+            newRow = Object.assign(newRow, objEle)
+          }
+          
+          res(newRow);
+
+        })
+      }     
+
+      await keyVal(el);
+
+    })).then(results => {
+
+      // this.rowData = [...this.rowData, newRow]
+      // this.mpTG.gridApi.setRowData(this.rowData);
+
+      //const nodeIndex = this.mpTG.gridApi.rowModel.rowsToDisplay.length - 1;
+      const nodeIndex = 0;
+
+      this.mpTG.gridApi.updateRowData({ 
+        add: [newRow],
+        addIndex: nodeIndex 
+      });
+
+      this.mpTG.defaultColDef.editable = true;
+
+      const newRowNode = this.mpTG.gridApi.getRowNode(nodeIndex);
+      newRowNode.setRowHeight(43);
+      
+      this.mpTG.gridApi.onRowHeightChanged();  
+
+      params.api.startEditingCell({
+        rowIndex: nodeIndex,
+        // gets the first columnKey
+        colKey: params.columnApi.getDisplayedCenterColumns()[0].colId
+      }); 
+      
+          
+
+    }).then(()=>{
+
+      // const listName = (params.node.data['odata.type']).slice(8, -8);
+
+      const listInfo = {
+        name: this.listInfo.name,
+        //rId: params.node.data.Id,
+        item: newRow,
+      }
+    });
+   
+    
+    
+
+    
+    
+    // //const confirm = window.confirm("Are you sure, you want to update this row ?");
+    
+    // //const apiUrl= `https://portal.bergerbd.com/_api/web/lists/getByTitle('WorkshopProposalMaster')/items(${params.node.data.Id})` ;
+    
+  
+    // this.updatedata = Object.keys(params.node.data)
+    //   .filter((key) => (key != "Author" && key != "Author@odata.navigationLinkUrl" && key != "Created" && key != "GUID" && key != "ID" && key != "Id" && key != "odata.editLink" && key != "odata.etag" && key != "odata.id" && key != "odata.type" && key != "[[Prototype]]" && key != "EmployeeId" && key != "PendingWith"))
+    //   .reduce((obj, key) => {
+    //       return Object.assign(obj, {
+    //         [key]: params.node.data[key]
+    //       });
+    // }, {});
+
+    // const listName = (params.node.data['odata.type']).slice(8, -8);           
+
+    
+    //this.sharepointlistService.updateListItem(listInfo);  
+    
+
+
+    //this.mpTG.gridApi.updateRowData({ add: [newRow] });
+
+
+    // this.gridApi.getFilterInstance("col3").resetFilterValues();
+    // this.gridApi.getFilterInstance("col4").resetFilterValues();
+  }
+
+  onCellClicked(params:any) {    //params:CellClickedEvent
+    // Handle click event for action cells
+    if (params.column.colId === "ID" && params.event.target.dataset.action) {
+      const action = params.event.target.dataset.action;
+
+      if (action === "add") {
+        const rowIndex = 1+ params.node.rowIndex;
+        let rowDataOnAdd: any[] = [];
+        rowDataOnAdd = [];
+        this.rowData = [];
+        this.rowData = rowDataOnAdd;        
+        this.mpTG.gridApi.setRowData(rowDataOnAdd);
+        
+      }
+      else if (action === "edit") {
+        this.mpTG.defaultColDef.editable = true;
+        params.api.startEditingCell({
+          rowIndex: params.node.rowIndex,
+          // gets the first columnKey
+          colKey: params.columnApi.getDisplayedCenterColumns()[0].colId
+        });
+
+        //== resize the Row Height ===
+        params.node.setRowHeight(43);        
+        this.mpTG.gridApi.onRowHeightChanged(); 
+      }
+      else if (action === "delete") {
+        params.api.applyTransaction({
+          remove: [params.node.data]
+        });
+      }
+      else if (action === "update") {  
+
+        Swal.fire({
+          title: 'Are you sure?',
+          text: "You won't be able to revert this!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, update it!'
+        }).then((result:any) => {     
+
+          if (result.isConfirmed) {
+            params.api.stopEditing(false);  
+            //const confirm = window.confirm("Are you sure, you want to update this row ?");
+            
+            this.updatedata = Object.keys(params.node.data)
+              .filter((key) => (key != "Author" && key != "Author@odata.navigationLinkUrl" && key != "Created" && key != "GUID" && key != "ID" && key != "Id" && key != "odata.editLink" && key != "odata.etag" && key != "odata.id" && key != "odata.type" && key != "[[Prototype]]" && key != "EmployeeId" && key != "PendingWith" && key != "undefined"))
+              .reduce((obj, key) => {
+                  return Object.assign(obj, {
+                    [key]: params.node.data[key]
+                  });
+            }, {});
+
+             
+            
+            if(params.node.data.ID == null){
+              if(isNaN(this.updatedata.RemainingBalance) || isNaN(this.updatedata.ReceivedQty) || isNaN(this.updatedata.OpeningBalance) ){
+                alert("RemainingBalance, ReceivedQty and OpeningBalance fields allows only numerical value !");
+                return false;
+              }
+              const listName = this.listInfo.name;
+              const listInfo = {
+                name: listName,
+                //rId: params.node.data.Id,
+                item: this.updatedata,
+              }
+              
+              this.sharepointlistService.saveListItem(listInfo).then((res:any)=>{
+                const accessoryCode = this.updatedata.AccessoryCode;
+                const stockListsUrl = "https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('ITAccessoriesStock')/items?&$top=2000&$select=ID,GUID,RemainingBalance&$filter=AccessoryCode eq '" + accessoryCode + "'";
+                
+                this.httpClient.get(stockListsUrl).subscribe((data:any) =>{
+
+                  const stockListItems = JSON.parse(JSON.stringify(data['value']));
+
+                  if(stockListItems.length >0){
+                    const remBal = this.updatedata.RemainingBalance ;
+                    const availability = this.updatedata.Availability;                   
+                    const stockListInfo = {
+                      name: "ITAccessoriesStock",
+                      rId: stockListItems[0].ID,
+                      item: {
+                        "RemainingBalance": remBal,
+                        "Availability": availability
+                      },
+                    }
+
+                    this.sharepointlistService.updateListItem(stockListInfo);
+                    
+                  }
+                  else{
+                    //===save in the "ITAccessoriesStock" list as a new item
+                    const newData = {
+                      AccessoryCode: this.updatedata.AccessoryCode,
+                      AccessoryCategory: this.updatedata.AccessoryCategory,
+                      AccessorySubCategory: this.updatedata.AccessorySubCategory,
+                      AccessoryName: this.updatedata.AccessoryName, 
+                      RemainingBalance: Number(this.updatedata.RemainingBalance),
+                      UOM: this.updatedata.UOM,
+                      Availability : this.updatedata.Availability
+                    };
+
+                    const stockListInfo = {
+                      name: "ITAccessoriesStock",
+                      //rId: stockListItems[0].ID,
+                      item: newData,
+                    }
+
+                    this.sharepointlistService.saveListItem(stockListInfo);
+                  }
+                });
+              });
+
+            }else{
+              if(isNaN(this.updatedata.RemainingBalance) || isNaN(this.updatedata.ReceivedQty) || isNaN(this.updatedata.OpeningBalance) ){
+                alert("RemainingBalance, ReceivedQty and OpeningBalance fields allows only numerical value !");
+                return false;
+              }
+              const listName = (params.node.data['odata.type']).slice(8, -8);
+              const listInfo = {
+                name: listName,
+                rId: params.node.data.Id,
+                item: this.updatedata,
+              }
+  
+              this.sharepointlistService.updateListItem(listInfo).then((res:any)=>{
+                const accessoryCode = this.updatedata.AccessoryCode;
+                const stockListsUrl = this.siteAbsoluteUrl + "/leaveauto/_api/web/lists/getByTitle('ITAccessoriesStock')/items?&$top=2000&$select=ID,GUID,RemainingBalance&$filter=AccessoryCode eq '" + accessoryCode + "'";
+                
+                this.httpClient.get(stockListsUrl).subscribe((data:any) =>{
+
+                  const stockListItems = JSON.parse(JSON.stringify(data['value']));
+
+                  if(stockListItems.length >0){
+                    const remBal = this.updatedata.RemainingBalance ;
+                    const availability = this.updatedata.Availability;                    
+                    const stockListInfo = {
+                      name: "ITAccessoriesStock",
+                      rId: stockListItems[0].ID,
+                      item: {
+                        "RemainingBalance":remBal,
+                        "Availability": availability
+                      },
+                    }
+
+                    this.sharepointlistService.updateListItem(stockListInfo);
+                    
+                  }else{
+                    alert("Fetching List info failed !");
+                  }
+                });
+              });
+            }
+
+            
+          
+          }
+
+          //== resize the Row Height ===
+          params.node.setRowHeight(25);        
+          this.mpTG.gridApi.onRowHeightChanged();
+          
+          return null;
+        })
+
+      }
+      else if (action === "cancel") {
+        params.api.stopEditing(true);
+
+        //== resize the Row Height ===
+        params.node.setRowHeight(25);        
+        this.mpTG.gridApi.onRowHeightChanged();
+      }
+    }
+  }
+
+  onRowEditingStarted(params:RowEditingStartedEvent) {
+    //this.mpTG.gridApi.refreshCells({force: true});
+    params.api.refreshCells({
+      columns: ["ID"],
+      rowNodes: [params.node],
+      force: true
+    });
+  }
+
+  onRowEditingStopped(params:RowEditingStoppedEvent) {
+    params.api.refreshCells({
+      columns: ["ID"],
+      rowNodes: [params.node],
+      force: true
+    });
+  }
+
+  onCellEditingStarted(event: CellEditingStartedEvent) {
+    console.log('cellEditingStarted');
+  }
+
+  onCellEditingStopped(event: CellEditingStoppedEvent) {
+    console.log('cellEditingStopped');
+  }
+
+  // Error handling
+  handleError(error: any) {
+    let errorMessage = '';
+    if (error.error instanceof ErrorEvent) {
+      // Get client-side error
+      errorMessage = error.error.message;
+    } else {
+      // Get server-side error
+      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+    }
+    window.alert(errorMessage);
+    return throwError(() => {
+      return errorMessage;
+    });
+  }
+
+}
+
+//let rowHeight; 
+let groupHeight:any;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

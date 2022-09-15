@@ -1,0 +1,20 @@
+<div class="actions-container" >
+    <div  *ngIf="!isGroupNode">
+      <button
+      mat-stroked-button
+      (click)="onToggleEditable($event)">
+      {{buttonEditableText}}
+      </button>
+
+
+      <button
+        type="button"
+        color="primary"
+        mat-stroked-button
+        color="warn"
+        (click)="onDeleteRow($event)"
+        >
+        Delete
+      </button>
+    <div>
+  </div>

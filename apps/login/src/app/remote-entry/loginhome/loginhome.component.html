@@ -1,0 +1,19 @@
+<p>loginhome works!</p>
+<div class="login-app">
+    <form class="login-form" (ngSubmit)="login()">
+      <label>
+        CustomerId:
+        <input type="text" name="username" [(ngModel)]="customerId" />
+      </label>
+      <label>
+        Username:
+        <input type="text" name="username" [(ngModel)]="username" />
+      </label>
+      <label>
+        Password:
+        <input type="password" name="password" [(ngModel)]="password" />
+      </label>
+      <button type="submit">Login</button>
+    </form>
+    <div *ngIf="isLoggedIn$ | async">User is logged in!</div>
+  </div>

@@ -1,0 +1,19 @@
+<form class="example-form">
+    <mat-form-field class="example-full-width" style="width:500px;" appearance="outline" id="portalDropdownAutocomplete">
+      <input 
+      matInput 
+      placeholder="Search with any keyword .." 
+      aria-label="Search" 
+      [matAutocomplete]="auto" 
+      [formControl]="stateCtrl" 
+      (keyup.enter)="enter()" >
+      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="optionSelected($event.option)">
+        <mat-option *ngFor="let option of filteredStates | async" [value]="option.value" multiLineOption style="min-height: 70px; line-height: normal; height: auto;">
+          <span style="font-size:12px; margin-bottom: 0px; padding: 0px;">{{ option.value }}</span><br/>
+          <span style="color:grey; font-size:10px; margin-top: -3px; margin-bottom: 0px; padding: 0px; height:11px;">{{ option.description }}</span><br/>
+          <small style="color:grey; font-size:8px; margin-top: -3px; margin-bottom: 0px; padding: 0px; height:9px;">{{option.details}}</small>
+        </mat-option>
+      </mat-autocomplete>      
+    </mat-form-field>
+</form>
+

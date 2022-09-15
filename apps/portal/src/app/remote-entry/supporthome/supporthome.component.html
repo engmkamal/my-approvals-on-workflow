@@ -1,0 +1,189 @@
+<style>
+    .mat-form-field {
+      width: 500px;
+    }
+</style>
+  
+  <!-- <mat-toolbar color="primary">
+      <mat-toolbar-row>
+          <button mat-icon-button>
+              <mat-icon>menu</mat-icon>
+          </button>
+          <span>SAP Technical Support</span>
+          <span class="example-spacer"></span>
+          <button mat-icon-button>
+              <mat-icon>dashboard</mat-icon>
+          </button>
+          <button mat-icon-button>
+              <mat-icon>verified_user</mat-icon>
+          </button>
+      </mat-toolbar-row>
+  </mat-toolbar>
+  
+  
+  
+  <div style="background-color: whitesmoke; padding: 15px; margin:auto;">
+      <portal-requestor [formGroup]="_form" [requestorsInfo]="requestorsInfo"></portal-requestor>
+      <pre>{{_form.value | json}}</pre>
+  </div> -->
+  
+  
+  <div class="example-container" [class.example-is-mobile]="mobileQuery.matches">
+    <mat-toolbar color="primary">
+      <mat-toolbar-row style="display: flex; ">
+        <div fxFlex="5"><button mat-icon-button (click)="snav.toggle()">
+            <mat-icon>menu</mat-icon>
+          </button></div>
+        <div fxFlex="10" fxFlex.xs="15">
+          <!-- <mat-icon aria-hidden="true" aria-label="Example home icon">home</mat-icon> -->
+          <span>BergerTech</span>
+        </div>
+        <div fxFlex="20" fxFlex.xs="25"><span>Support</span></div>
+        <div fxFlex="20" fxFlex.xs="25"></div>
+        <div fxFlex="20" fxFlex.xs="5"></div>
+        <div fxFlex="20" fxFlex.xs="5">
+            <button mat-icon-button>
+                <mat-icon>account_box</mat-icon>
+            </button> 
+            <portal-user></portal-user>           
+            <!-- <portal-userlogin *ngIf="!showLoginFrm"></portal-userlogin>  -->
+        </div>
+        <div fxFlex="5" fxFlex.xs="5">
+          <button mat-icon-button>
+            <mat-icon>dashboard</mat-icon>
+          </button>
+          <button mat-icon-button *ngIf="!showLoginFrm">
+            <mat-icon>verified_user</mat-icon>
+          </button>
+        </div>
+      </mat-toolbar-row>
+    </mat-toolbar>
+  
+    <mat-sidenav-container class="example-sidenav-container" [style.marginTop.px]="mobileQuery.matches ? 56 : 0">
+  
+      <mat-sidenav #snav [(opened)]="opened" [mode]="mobileQuery.matches ? 'over' : 'side'"
+        [fixedInViewport]="mobileQuery.matches" fixedTopGap="56">
+        <mat-nav-list>
+          <a mat-list-item routerLink="./itservicerequest">Create Request</a>
+          <a mat-list-item routerLink="./getstarted">Get Started</a>
+          <a mat-list-item routerLink="./approvalflow">Approval Flow</a>
+          <a mat-list-item routerLink=".">Dashboard</a>
+          <a mat-list-item routerLink=".">Report</a>
+          <a mat-list-item routerLink="./getstarted">Help</a>
+          <a mat-list-item routerLink="./getstarted">SOP</a>
+          <a mat-list-item routerLink="./getstarted">FAQ</a>
+        </mat-nav-list>
+      </mat-sidenav>
+      <mat-sidenav-content>
+        <mat-drawer-container style="width: 100%; height: 100%;">
+          <mat-drawer #startDrawer mode="side" [(opened)]="openedStartDrawer" position="start" style="width:300px;">
+            Drawer content
+          </mat-drawer>
+          <mat-drawer #sideNav mode="side" [(opened)]="openedEndDrawer" position="end" style="width:400px;">
+            <ng-container>
+              <a routerLink="./itservicerequest">
+                <portal-dragndresizable [requestInfo]="requestInfo" (outputToParent)="GetOutputVal($event)">
+                </portal-dragndresizable>
+              </a>
+            </ng-container>
+          </mat-drawer>
+          <mat-drawer-content>            
+            <!-- <portal-user></portal-user> -->
+            <div style="display: flex; justify-content: center;"><portal-userlogin *ngIf="showLoginFrm"></portal-userlogin></div>
+            
+            <div *ngIf="!showLoginFrm" style="display: flex; flex-direction: column;">
+              <div >
+                <div class="img2">
+                  <div
+                    style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-evenly; align-items:baseline; row-gap: 10px; column-gap: 20px;">
+                    <div
+                      style="justify-content: center; margin: auto; margin-top:68px; background-color: rgba(0, 0, 0, 0.418); border-radius: 10px 10px 0px 0px;">
+                
+                      <div style="font-family:Arial; color:azure; margin: 30px;" >
+                        <h2 style="font-family:Arial; font-weight:bolder; color:azure">Welcome to the Berger Tech Support Portal !!</h2>
+                        <p>Search for SAP, Microsoft or AWS base support solutions, articles and more ...</p>
+        
+                        <div class="searchBarWrapper">                    
+        
+                            <ng-container>
+                              <portal-dropdown-autocomplete (changeSelection)="ddlChangeSelection($event)">
+                              </portal-dropdown-autocomplete>
+                            </ng-container>                          
+        
+                        </div>
+        
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <br />
+              <div style="height:320px;" #homeMenusDivContainer><portal-homemenus></portal-homemenus></div>
+              <!-- <div>
+                <div>
+                  <div style="max-width:100%">
+                    <div>
+                      <div
+                        style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-evenly; align-items:baseline; row-gap: 20px; column-gap: 10px;">
+                        <div fxFlex="30" fxLayout="row" fxLayoutAlign="space-around center" >
+                            <a routerLink="/request" rel="noopener noreferrer">
+                                <div fxFlex="30">
+                                    <img alt="Report an Incident" title="Report an Incident"
+                                    src="https://support.sap.com/en/_jcr_content/sectionContainer/par/section_1528579655/par-section/personalizedtoptasks/topTaskImages/item5.adaptto.desktop_hd.png"
+                                    style="vertical-align:middle; font-family: Arial;">
+                                </div>
+                                <div style="font-family:Arial;" fxLayoutAlign="space-around center" >
+                                    Report an Incident
+                                </div>                            
+                            </a>
+                        </div>
+                        <div fxFlex="30">
+                          <a href="https://launchpad.support.sap.com/#incident/list" target="_blank"
+                            rel="noopener noreferrer"><img alt="View Incidents" title="View Incidents"
+                              src="https://support.sap.com/en/_jcr_content/sectionContainer/par/section_1528579655/par-section/personalizedtoptasks/topTaskImages/item6.adaptto.desktop_hd.png"
+                              style="vertical-align:middle; font-family: Arial;"><span>View Incidents</span></a>
+                        </div>                        
+                        <br />
+                        <div fxFlex="30">
+                          <a href="https://launchpad.support.sap.com/#/user/management" class=" top-task__item" target="_blank"
+                            rel="noopener noreferrer"><img alt="Vew My Profile" title="Vew My Profile"
+                              src="https://support.sap.com/en/_jcr_content/sectionContainer/par/section_1528579655/par-section/personalizedtoptasks/topTaskImages/item8.adaptto.desktop_hd.png"
+                              style="vertical-align:middle; font-family: Arial;"><span>Vew My Profile</span></a>
+                        </div>
+                        <div fxFlex="30">
+                          <a href="https://launchpad.support.sap.com/" target="_blank" rel="noopener noreferrer"><img
+                              alt="Edit System Data" title="Edit System Data"
+                              src="https://support.sap.com/en/_jcr_content/sectionContainer/par/section_1528579655/par-section/personalizedtoptasks/topTaskImages/item4.adaptto.desktop_hd.png"
+                              style="vertical-align:middle; font-family: Arial;"><span>Edit System Data</span></a>
+                        </div>
+                        <div fxFlex="30">
+                          <a href="https://launchpad.support.sap.com/#/licensekey" class=" top-task__item" target="_blank"
+                            rel="noopener noreferrer"><img alt="Change Password" title="Change Password"
+                              src="https://support.sap.com/en/_jcr_content/sectionContainer/par/section_1528579655/par-section/personalizedtoptasks/topTaskImages/item9.adaptto.desktop_hd.png"
+                              style="vertical-align:middle; font-family: Arial;"><span>Change Password</span></a>
+                        </div>
+                        <div fxFlex="30">
+                          <a routerLink="/tasks" target="_blank" rel="noopener noreferrer"><img
+                              alt="View Tasks Board" title="View Tasks Board"
+                              src="https://support.sap.com/en/_jcr_content/sectionContainer/par/section_1528579655/par-section/personalizedtoptasks/topTaskImages/item4.adaptto.desktop_hd.png"
+                              style="vertical-align:middle; font-family: Arial;"><span>View Tasks Board</span></a>
+                        </div>                      
+        
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div> -->
+            </div>
+          </mat-drawer-content>
+        </mat-drawer-container>        
+  
+      </mat-sidenav-content>
+  
+    </mat-sidenav-container>
+  </div>
+  
+  
+  
+  
+    <router-outlet></router-outlet>

@@ -1,0 +1,42 @@
+{
+  "projectType": "library",
+  "sourceRoot": "libs/ui-components/src",
+  "prefix": "portal",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/angular:ng-packagr-lite",
+      "outputs": ["dist/libs/ui-components"],
+      "options": {
+        "project": "libs/ui-components/ng-package.json",
+        "tailwindConfig": "libs/ui-components/tailwind.config.js"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "libs/ui-components/tsconfig.lib.prod.json"
+        },
+        "development": {
+          "tsConfig": "libs/ui-components/tsconfig.lib.json"
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/ui-components"],
+      "options": {
+        "jestConfig": "libs/ui-components/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "libs/ui-components/**/*.ts",
+          "libs/ui-components/**/*.html"
+        ]
+      }
+    }
+  },
+  "tags": []
+}

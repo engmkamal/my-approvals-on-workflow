@@ -1,0 +1,2 @@
+export interface AppLoader {
+}

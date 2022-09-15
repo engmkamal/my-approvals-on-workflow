@@ -1,0 +1,119 @@
+{
+  "projectType": "application",
+  "sourceRoot": "apps/travelrequestdashboard/src",
+  "prefix": "portal",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/angular:webpack-browser",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/travelrequestdashboard",
+        "index": "apps/travelrequestdashboard/src/index.html",
+        "main": "apps/travelrequestdashboard/src/main.ts",
+        "polyfills": "apps/travelrequestdashboard/src/polyfills.ts",
+        "tsConfig": "apps/travelrequestdashboard/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          "apps/travelrequestdashboard/src/favicon.ico",
+          "apps/travelrequestdashboard/src/assets"
+        ],
+        "styles": ["apps/travelrequestdashboard/src/styles.scss"],
+        "scripts": [],
+        "customWebpackConfig": {
+          "path": "apps/travelrequestdashboard/webpack.config.js"
+        }
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "2kb",
+              "maximumError": "4kb"
+            }
+          ],
+          "fileReplacements": [
+            {
+              "replace": "apps/travelrequestdashboard/src/environments/environment.ts",
+              "with": "apps/travelrequestdashboard/src/environments/environment.prod.ts"
+            }
+          ],
+          "outputHashing": "all",
+          "customWebpackConfig": {
+            "path": "apps/travelrequestdashboard/webpack.prod.config.js"
+          }
+        },
+        "development": {
+          "buildOptimizer": false,
+          "optimization": false,
+          "vendorChunk": true,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "namedChunks": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@nrwl/angular:webpack-server",
+      "configurations": {
+        "production": {
+          "browserTarget": "travelrequestdashboard:build:production"
+        },
+        "development": {
+          "browserTarget": "travelrequestdashboard:build:development"
+        }
+      },
+      "defaultConfiguration": "development",
+      "options": {
+        "port": 4209,
+        "publicHost": "http://localhost:4209"
+      }
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n",
+      "options": {
+        "browserTarget": "travelrequestdashboard:build"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "apps/travelrequestdashboard/**/*.ts",
+          "apps/travelrequestdashboard/**/*.html"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/travelrequestdashboard"],
+      "options": {
+        "jestConfig": "apps/travelrequestdashboard/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "serve-static": {
+      "executor": "@nrwl/angular:file-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "travelrequestdashboard:build",
+        "port": 4209
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "travelrequestdashboard:build:development"
+        },
+        "production": {
+          "buildTarget": "travelrequestdashboard:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}

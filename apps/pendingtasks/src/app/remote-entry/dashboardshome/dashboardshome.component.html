@@ -1,0 +1,62 @@
+
+<style>
+    .parent {        
+        height: 40px;
+        width: 170px;
+        display: flex; 
+        padding: 10px;
+        margin: 10px;
+    }
+
+    .child {
+        text-align: center;
+        color:rgb(37, 4, 133);
+        font-weight:bolder;
+        font-size: 12pt;
+        font-family: Arial;
+        align-items: center;
+    }
+</style>
+
+<mat-accordion style="color:lightblue;">
+    <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false"
+        style="background:lightblue;" expanded="true">
+        <mat-expansion-panel-header>
+            <mat-panel-title>
+                Workflow having my Approval:
+            </mat-panel-title>
+            <mat-panel-description>
+            </mat-panel-description>
+        </mat-expansion-panel-header>
+        <div style="background-color: whitesmoke; padding: 15px; margin:auto; display: flex; flex-direction: row; flex-wrap: wrap;" >
+            <ng-template ngFor let-wf [ngForOf]="allWf" let-i="index" [ngForTrackBy]="trackByFnMenu" let-c="count">
+                <div style="background-color: whitesmoke; width:250px; margin-left: 10px; margin-right: 30px; margin-bottom: 10px;">
+                    <div style="background-color: lightblue; ">
+                        <div style="margin-left: 10px; margin-right: 10px; background-color: rgb(228, 242, 247);" class="actionDivFlexCont">                         
+                            <div style="margin-left: 10px; margin-right: 10px;" >
+                                <div >            
+                                    <a routerLink="./{{wf.WfName}}">
+                                        <!-- <a href="{{webAbsoluteUrl}}/workflowdashboards/{{wf.WfName}}"> -->
+                                        <!-- <a href="http://localhost:4200/db/{{wf.WfName}}"> -->
+                                    <div >
+                                        <h5 >{{wf.DisplayTxt}}</h5>
+                                        <!-- <h6 class="child">{{wf.DisplayTxt}}</h6> -->
+                                        <!-- <h4 style="text-align: center;">{{wf.DisplayTxt}}</h4> -->
+                                        <span></span>
+                                    </div>
+                                    </a>
+                                </div>
+                            </div>                                  
+                        </div>
+                     </div>
+                </div>               
+                 
+            </ng-template>
+        </div>
+    </mat-expansion-panel>
+</mat-accordion>
+
+
+
+
+

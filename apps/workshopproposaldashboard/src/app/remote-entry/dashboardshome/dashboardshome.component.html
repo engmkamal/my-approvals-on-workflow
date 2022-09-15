@@ -1,0 +1,40 @@
+
+<style>
+    .parent {        
+        height: 100px;
+        width: 180px;
+        background-color: #2cb78a;
+        display: flex;        
+        align-items: center;
+        padding: 10px;
+        margin: 10px;
+    }
+
+    .child {
+        text-align: center;
+        color:white;
+        font-weight:bolder;
+    }
+</style>
+
+
+
+<div style="width:100℅; display:flex; flex-wrap: wrap; margin: auto;">
+    <ng-template ngFor let-wf [ngForOf]="allWf" let-i="index" [ngForTrackBy]="trackByFnMenu" let-c="count">        
+        <div>            
+            <a routerLink="./{{wf.WfName}}">
+                <!-- <a href="{{webAbsoluteUrl}}/workflowdashboards/{{wf.WfName}}"> -->
+                <!-- <a href="http://localhost:4200/db/{{wf.WfName}}"> -->
+            <div class="parent">
+                <h6 class="child">{{wf.WfName}}</h6>
+                <!-- <h6 class="child">{{wf.DisplayTxt}}</h6> -->
+                <!-- <h4 style="text-align: center;">{{wf.DisplayTxt}}</h4> -->
+                <span></span>
+            </div>
+            </a>
+        </div>
+    </ng-template>
+</div>
+
+
+

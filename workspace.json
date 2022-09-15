@@ -1,5 +1,36 @@
 {
   "$schema": "./node_modules/nx/schemas/workspace-schema.json",
   "version": 2,
-  "projects": {}
+  "projects": {
+    "colorbankdashboard": "apps/colorbankdashboard",
+    "colorbankdashboard-e2e": "apps/colorbankdashboard-e2e",
+    "core": "libs/core",
+    "dashboard": "libs/dashboard",
+    "itaccessoriesdashboard": "apps/itaccessoriesdashboard",
+    "itaccessoriesdashboard-e2e": "apps/itaccessoriesdashboard-e2e",
+    "itservicerequest": "apps/itservicerequest",
+    "itservicerequest-e2e": "apps/itservicerequest-e2e",
+    "login": "apps/login",
+    "login-e2e": "apps/login-e2e",
+    "pendingtasks": "apps/pendingtasks",
+    "pendingtasks-e2e": "apps/pendingtasks-e2e",
+    "portal": "apps/portal",
+    "portal-e2e": "apps/portal-e2e",
+    "sampletestdashboard": "apps/sampletestdashboard",
+    "sampletestdashboard-e2e": "apps/sampletestdashboard-e2e",
+    "shared-data-access-user": "libs/shared/data-access-user",
+    "stationaryitemsdashboard": "apps/stationaryitemsdashboard",
+    "stationaryitemsdashboard-e2e": "apps/stationaryitemsdashboard-e2e",
+    "support": "apps/support",
+    "support-e2e": "apps/support-e2e",
+    "travelrequestdashboard": "apps/travelrequestdashboard",
+    "travelrequestdashboard-e2e": "apps/travelrequestdashboard-e2e",
+    "ui": "libs/ui",
+    "ui-components": "libs/ui-components",
+    "utils": "libs/utils",
+    "wfdashboard": "apps/wfdashboard",
+    "wfdashboard-e2e": "apps/wfdashboard-e2e",
+    "workshopproposaldashboard": "apps/workshopproposaldashboard",
+    "workshopproposaldashboard-e2e": "apps/workshopproposaldashboard-e2e"
+  }
 }

@@ -1,0 +1,84 @@
+
+
+<!-- <style >
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/primeng/14.0.0-rc.1/resources/themes/lara-light-indigo/theme.min.css" integrity="sha512-e4S0dQ/MLLXRF8A8AH61FXm0hqo1n+Ylgoxy1DpsaRhIVT/2CAT/YMIeBWdveboD5DUcoN5HQOF90+PO1af2UA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/primeng/14.0.0-rc.1/resources/primeng.min.css" integrity="sha512-r+7nBruJAP0K40EeVLBCoT2P4ohFAJJJUFSqTzUB8x8foSfxm1zkDA6ftMQmkbebkyk0FU8zZLnuyQG8FevBwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</style>
+
+<style>
+  .p-fileupload-content{position:relative}.p-fileupload-row{display:flex;align-items:center}.p-fileupload-row>div{flex:1 1 auto;width:25%}.p-fileupload-row>div:last-child{text-align:right}.p-fileupload-content .p-progressbar{width:100%;position:absolute;top:0;left:0}.p-button.p-fileupload-choose{position:relative;overflow:hidden}.p-button.p-fileupload-choose input[type=file],.p-fileupload-choose.p-fileupload-choose-selected input[type=file]{display:none}.p-fluid .p-fileupload .p-button{width:auto}.p-fileupload-filename{word-break:break-all}
+</style>
+
+<style>
+  .p-tabview-nav-container{position:relative}.p-tabview-scrollable .p-tabview-nav-container{overflow:hidden}.p-tabview-nav-content{overflow-x:auto;overflow-y:hidden;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior:contain auto}.p-tabview-nav{display:flex;margin:0;padding:0;list-style-type:none;flex:1 1 auto}.p-tabview-nav-link{cursor:pointer;-webkit-user-select:none;user-select:none;display:flex;align-items:center;position:relative;text-decoration:none;overflow:hidden}.p-tabview-ink-bar{display:none;z-index:1}.p-tabview-nav-link:focus{z-index:1}.p-tabview-title{line-height:1;white-space:nowrap}.p-tabview-nav-btn{position:absolute;top:0;z-index:2;height:100%;display:flex;align-items:center;justify-content:center}.p-tabview-nav-prev{left:0}.p-tabview-nav-next{right:0}.p-tabview-nav-content::-webkit-scrollbar{display:none}.p-tabview-close{z-index:1}
+</style>
+
+<style>
+  .p-tabview-nav-container{position:relative}.p-tabview-scrollable .p-tabview-nav-container{overflow:hidden}.p-tabview-nav-content{overflow-x:auto;overflow-y:hidden;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior:contain auto}.p-tabview-nav{display:flex;margin:0;padding:0;list-style-type:none;flex:1 1 auto}.p-tabview-nav-link{cursor:pointer;-webkit-user-select:none;user-select:none;display:flex;align-items:center;position:relative;text-decoration:none;overflow:hidden}.p-tabview-ink-bar{display:none;z-index:1}.p-tabview-nav-link:focus{z-index:1}.p-tabview-title{line-height:1;white-space:nowrap}.p-tabview-nav-btn{position:absolute;top:0;z-index:2;height:100%;display:flex;align-items:center;justify-content:center}.p-tabview-nav-prev{left:0}.p-tabview-nav-next{right:0}.p-tabview-nav-content::-webkit-scrollbar{display:none}.p-tabview-close{z-index:1}
+</style>
+
+<style>
+  .p-tabview-nav-container{position:relative}.p-tabview-scrollable .p-tabview-nav-container{overflow:hidden}.p-tabview-nav-content{overflow-x:auto;overflow-y:hidden;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior:contain auto}.p-tabview-nav{display:flex;margin:0;padding:0;list-style-type:none;flex:1 1 auto}.p-tabview-nav-link{cursor:pointer;-webkit-user-select:none;user-select:none;display:flex;align-items:center;position:relative;text-decoration:none;overflow:hidden}.p-tabview-ink-bar{display:none;z-index:1}.p-tabview-nav-link:focus{z-index:1}.p-tabview-title{line-height:1;white-space:nowrap}.p-tabview-nav-btn{position:absolute;top:0;z-index:2;height:100%;display:flex;align-items:center;justify-content:center}.p-tabview-nav-prev{left:0}.p-tabview-nav-next{right:0}.p-tabview-nav-content::-webkit-scrollbar{display:none}.p-tabview-close{z-index:1}
+</style>
+<style>
+  .p-message-wrapper{display:flex;align-items:center}.p-message-close{display:flex;align-items:center;justify-content:center}.p-message-close.p-link{margin-left:auto;overflow:hidden;position:relative}.p-messages .p-message.ng-animating{overflow:hidden}
+</style> -->
+
+
+
+
+<ng-container>
+  <!-- <ng-container *ngIf="controlContainer.control" [formGroup]="controlContainer.control"> -->
+  <div class="fix-this">
+    <div>
+      
+      <p>Please select all attachments one after another:</p>
+      <!-- <p-fileUpload #form customUpload="true" maxFileSize="5000000"
+        multiple="multiple" (uploadHandler)="uploadFiles($event,form)" (change)="uploadFileEvt($event,form)">
+      </p-fileUpload> -->
+
+      <p-fileUpload #form [customUpload]="customUpload" 
+        [maxFileSize]="maxFileSize"
+        [multiple]="multiple" 
+        (uploadHandler)="uploadFiles($event,form)" 
+        (onSelect)="addFilesToParents($event)"
+        [fileLimit]="fileLimit"
+        name="myfile[]"
+        (onUpload)="onBasicUpload($event)">
+        <ng-template pTemplate="content">
+          <ul *ngIf="uploadedFiles.length">
+              <li *ngFor="let file of uploadedFiles">{{file.name}} - {{file.size}} bytes</li>
+          </ul>
+        </ng-template>
+      </p-fileUpload>
+    </div>
+
+    
+  
+  <!-- <h2 *ngIf="requestInfo.uId != '' ">Uploaded Attachments:</h2>
+  <div class="div-outer-table" *ngIf="requestInfo.uId != '' ">
+    <div class="table-responsive">
+        <table id="tblReceipt" class="table table-bordered table-hover table-striped table-condensed css-serial">
+            <thead>
+                <tr>
+                    <th id="">SL#</th>
+                    <th id="thReceipt">View Attachment</th>
+                    <th id="thReceipt">Uploaded By</th>
+                    <th id="thReceipt">Uploaded Date</th>
+                    <th id="thDelete"></th>
+                </tr>
+            </thead>
+            <tbody>              
+                <tr *ngFor="let attachment of requestInfo.Attachments; let i = index">
+                    <td id="tdSlNo">{{i+1}}</td>
+                    <td id="tdReceipt"><a href="{{attachment.AttachmentFiles.results[0].ServerRelativeUrl}}">{{attachment.AttachmentFiles.results[0].FileName}}</a></td>
+                    <td id="tdReceipt">{{attachment.ActionBy.Title}}</td>
+                    <td id="tdReceipt">{{attachment.ActionDate | date}}</td>                    
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div> -->
+  </div>
+</ng-container>
+

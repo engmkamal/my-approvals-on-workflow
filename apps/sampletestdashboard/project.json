@@ -1,0 +1,119 @@
+{
+  "projectType": "application",
+  "sourceRoot": "apps/sampletestdashboard/src",
+  "prefix": "portal",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/angular:webpack-browser",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/sampletestdashboard",
+        "index": "apps/sampletestdashboard/src/index.html",
+        "main": "apps/sampletestdashboard/src/main.ts",
+        "polyfills": "apps/sampletestdashboard/src/polyfills.ts",
+        "tsConfig": "apps/sampletestdashboard/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          "apps/sampletestdashboard/src/favicon.ico",
+          "apps/sampletestdashboard/src/assets"
+        ],
+        "styles": ["apps/sampletestdashboard/src/styles.scss"],
+        "scripts": [],
+        "customWebpackConfig": {
+          "path": "apps/sampletestdashboard/webpack.config.js"
+        }
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "90mb",
+              "maximumError": "100mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "390kb",
+              "maximumError": "400kb"
+            }
+          ],
+          "fileReplacements": [
+            {
+              "replace": "apps/sampletestdashboard/src/environments/environment.ts",
+              "with": "apps/sampletestdashboard/src/environments/environment.prod.ts"
+            }
+          ],
+          "outputHashing": "all",
+          "customWebpackConfig": {
+            "path": "apps/sampletestdashboard/webpack.prod.config.js"
+          }
+        },
+        "development": {
+          "buildOptimizer": false,
+          "optimization": false,
+          "vendorChunk": true,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "namedChunks": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@nrwl/angular:webpack-server",
+      "configurations": {
+        "production": {
+          "browserTarget": "sampletestdashboard:build:production"
+        },
+        "development": {
+          "browserTarget": "sampletestdashboard:build:development"
+        }
+      },
+      "defaultConfiguration": "development",
+      "options": {
+        "port": 4207,
+        "publicHost": "http://localhost:4207"
+      }
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n",
+      "options": {
+        "browserTarget": "sampletestdashboard:build"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "apps/sampletestdashboard/**/*.ts",
+          "apps/sampletestdashboard/**/*.html"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/sampletestdashboard"],
+      "options": {
+        "jestConfig": "apps/sampletestdashboard/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "serve-static": {
+      "executor": "@nrwl/angular:file-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "sampletestdashboard:build",
+        "port": 4207
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "sampletestdashboard:build:development"
+        },
+        "production": {
+          "buildTarget": "sampletestdashboard:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}

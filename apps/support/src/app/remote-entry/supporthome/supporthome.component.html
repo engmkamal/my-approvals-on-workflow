@@ -1,0 +1,11 @@
+
+<ng-container>
+    <portal-supportparent (outputToParent)="GetOutputVal($event)"
+                            (btnClickAction)="getBtnClickAction($event)"
+                            (gridData)="GetGridData($event)">
+    </portal-supportparent>
+</ng-container>
+
+<ng-template #viewReadMode>
+</ng-template>
+

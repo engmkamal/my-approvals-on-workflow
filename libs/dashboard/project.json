@@ -1,0 +1,25 @@
+{
+  "projectType": "library",
+  "sourceRoot": "libs/dashboard/src",
+  "prefix": "portal",
+  "targets": {
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/dashboard"],
+      "options": {
+        "jestConfig": "libs/dashboard/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "libs/dashboard/**/*.ts",
+          "libs/dashboard/**/*.html"
+        ]
+      }
+    }
+  },
+  "tags": []
+}

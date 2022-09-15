@@ -1,0 +1,119 @@
+{
+  "projectType": "application",
+  "sourceRoot": "apps/colorbankdashboard/src",
+  "prefix": "portal",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/angular:webpack-browser",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/colorbankdashboard",
+        "index": "apps/colorbankdashboard/src/index.html",
+        "main": "apps/colorbankdashboard/src/main.ts",
+        "polyfills": "apps/colorbankdashboard/src/polyfills.ts",
+        "tsConfig": "apps/colorbankdashboard/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          "apps/colorbankdashboard/src/favicon.ico",
+          "apps/colorbankdashboard/src/assets"
+        ],
+        "styles": ["apps/colorbankdashboard/src/styles.scss"],
+        "scripts": [],
+        "customWebpackConfig": {
+          "path": "apps/colorbankdashboard/webpack.config.js"
+        }
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "99mb",
+              "maximumError": "100mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "49mb",
+              "maximumError": "50mb"
+            }
+          ],
+          "fileReplacements": [
+            {
+              "replace": "apps/colorbankdashboard/src/environments/environment.ts",
+              "with": "apps/colorbankdashboard/src/environments/environment.prod.ts"
+            }
+          ],
+          "outputHashing": "all",
+          "customWebpackConfig": {
+            "path": "apps/colorbankdashboard/webpack.prod.config.js"
+          }
+        },
+        "development": {
+          "buildOptimizer": false,
+          "optimization": false,
+          "vendorChunk": true,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "namedChunks": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@nrwl/angular:webpack-server",
+      "configurations": {
+        "production": {
+          "browserTarget": "colorbankdashboard:build:production"
+        },
+        "development": {
+          "browserTarget": "colorbankdashboard:build:development"
+        }
+      },
+      "defaultConfiguration": "development",
+      "options": {
+        "port": 4206,
+        "publicHost": "http://localhost:4206"
+      }
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n",
+      "options": {
+        "browserTarget": "colorbankdashboard:build"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "apps/colorbankdashboard/**/*.ts",
+          "apps/colorbankdashboard/**/*.html"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/colorbankdashboard"],
+      "options": {
+        "jestConfig": "apps/colorbankdashboard/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "serve-static": {
+      "executor": "@nrwl/angular:file-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "colorbankdashboard:build",
+        "port": 4206
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "colorbankdashboard:build:development"
+        },
+        "production": {
+          "buildTarget": "colorbankdashboard:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}

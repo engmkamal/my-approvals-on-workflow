@@ -1,0 +1,435 @@
+<mat-sidenav-container class="example-sidenav-container" [style.marginTop.px]="mobileQuery.matches ? 56 : 0">
+
+
+  <mat-sidenav-content>
+    <mat-drawer-container style="width: 100%; height: 100%;">
+      <mat-drawer #startDrawer mode="side" [(opened)]="openedStartDrawer" position="start" style="width:300px;">
+        Drawer content
+      </mat-drawer>
+      <mat-drawer #sideNav mode="side" [(opened)]="openedEndDrawer" position="end" style="width:400px;">
+        <ng-container>
+          <a routerLink="./itservicerequest">
+            <portal-dragndresizable [requestInfo]="requestInfo" (outputToParent)="GetOutputVal($event)">
+            </portal-dragndresizable>
+          </a>
+        </ng-container>
+      </mat-drawer>
+      <mat-drawer-content style="padding:10px; margin-top:10px;">
+        <!-- <mat-accordion style="color:lightblue;">                
+                <mat-expansion-panel (opened)="panelOpenState = true"
+                                     (closed)="panelOpenState = false" style="background:rgb(221, 235, 241) ;" expanded="true">
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      Requestor:
+                    </mat-panel-title>
+                    <mat-panel-description>
+                      <span *ngIf="requestorsInfo">{{requestorsInfo.EmployeeName}}</span>
+                    </mat-panel-description>
+                  </mat-expansion-panel-header>
+                    <div style="background-color: whitesmoke; padding: 15px; margin:auto;">
+                        <portal-requestor [formGroup]="_form" [requestorsInfo]="requestorsInfo"></portal-requestor>
+                        <pre>{{_form.value | json}}</pre>
+                    </div>
+                </mat-expansion-panel>
+            </mat-accordion> -->
+        <br />
+
+
+
+
+        <div style="width: 100%; margin: auto;" class="fix-this panel">
+          <div style="width: 100%; background-color: #81bddbf7;">
+            <form [formGroup]="_form" (ngSubmit)="onSubmitBtn()" #heroForm="ngForm">
+
+
+              <div style="margin-top: 10px; margin-left: 30px;">
+                <h3 style="color: white; font-family: 'Arial';">Support Request</h3>
+              </div>
+
+              <div style="background-color: whitesmoke; padding: 15px; margin-left: 15px; margin-right: 15px;">
+                <mat-accordion style="color:lightblue;">
+                  <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false"
+                    style="background:rgb(221, 235, 241) ;" expanded="true">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        Customer Information:
+                      </mat-panel-title>
+                      <mat-panel-description>
+                        <!-- <span *ngIf="requestorsInfo">{{requestorsInfo.EmployeeName}}</span> -->
+                      </mat-panel-description>
+                    </mat-expansion-panel-header>
+                    <div style="background-color: whitesmoke; padding: 15px; margin:auto;" *ngIf="showReqInfoDiv">
+                      <portal-supportcustomer [formGroup]="_form" [requestorsInfo]="requestorsInfo">
+                      </portal-supportcustomer>
+                    </div>
+                  </mat-expansion-panel>
+                </mat-accordion>
+                <br />
+
+                <div formGroupName="AppParameters">
+                  <mat-accordion style="color:lightblue;">
+                    <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false"
+                      style="background:rgb(221, 235, 241) ;" expanded="true">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          Support Information:
+                        </mat-panel-title>
+                        <mat-panel-description>
+                          <!-- <span *ngIf="requestorsInfo">{{requestorsInfo.EmployeeName}}</span> -->
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
+                      <div style="background-color: whitesmoke; padding: 15px; margin:auto;" >
+                        <div mat-dialog-content class="container-fluid" formGroupName="SupportInfo">
+                          <div class="row mb-1">
+  
+                            <div class="col-4">
+                              <mat-form-field class="w-100">
+                                <mat-label>Support Category:</mat-label>
+                                <input type="text" matInput name="SupportCategory" formControlName="SupportCategory"
+                                  placeholder="Support Category" [(ngModel)]="supModel.SupportCategory">
+                                <mat-error>
+  
+                                </mat-error>
+                              </mat-form-field>
+                            </div>
+  
+                            <div class="col-4">
+                              <mat-form-field class="w-100">
+                                <mat-label>System Detail:</mat-label>
+                                <input type="text" matInput name="SystemDetail" formControlName="SystemDetail"
+                                  placeholder="System Detail" [(ngModel)]="supModel.SystemDetail">
+                                <mat-error>
+  
+                                </mat-error>
+                              </mat-form-field>
+                            </div>
+  
+                            <div class="col-4">
+                              <mat-form-field class="w-100">
+                                <mat-label>Product Area:</mat-label>
+                                <input type="text" matInput name="ProductArea" formControlName="ProductArea"
+                                  placeholder="Product Area" [(ngModel)]="supModel.ProductArea">
+                                <mat-error>
+  
+                                </mat-error>
+                              </mat-form-field>
+                            </div>
+  
+                            <div class="col-4">
+                              <mat-form-field class="w-100">
+                                <mat-label>Concerned Person:</mat-label>
+                                <input type="text" matInput name="ConcernedPerson" formControlName="ConcernedPerson"
+                                  placeholder="Concerned Person" [(ngModel)]="supModel.ConcernedPerson">
+                                <mat-error>
+  
+                                </mat-error>
+                              </mat-form-field>
+                            </div>
+                            <div class="col-4">
+                              <mat-form-field class="w-100">
+                                <mat-label>Contact No:</mat-label>
+                                <input type="text" matInput name="ContactNo" formControlName="ContactNo"
+                                  placeholder="Contact No" [(ngModel)]="supModel.ContactNo">
+                                <mat-error>
+  
+                                </mat-error>
+                              </mat-form-field>
+                            </div>
+  
+                            <div class="col-4">
+                              <mat-form-field class="w-100">
+                                <mat-label>Contact Email:</mat-label>
+                                <input type="text" matInput name="ContactEmail" formControlName="ContactEmail"
+                                  placeholder="Contact Email" [(ngModel)]="supModel.ContactEmail">
+                                <mat-error>
+  
+                                </mat-error>
+                              </mat-form-field>
+                            </div>
+  
+  
+                          </div>  
+  
+                          <!-- <lib-json-schema-form [schema]="requestorSchema"></lib-json-schema-form> -->
+                        </div>
+                      </div>
+                       
+                    </mat-expansion-panel>
+                  </mat-accordion>
+                  <br />
+                  <mat-accordion style="color:lightblue;">
+                    <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false"
+                      style="background:rgb(221, 235, 241) ;" expanded="true">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          Problem Description:
+                        </mat-panel-title>
+                        <mat-panel-description>
+                          <!-- <span ></span> -->
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
+                      <div style="background-color: whitesmoke; padding: 15px; margin:auto;" >
+                        <div mat-dialog-content class="container-fluid" formGroupName="ProblemDescription">
+                          <div class="row mb-1">
+  
+                            <div class="col-4">
+                              <mat-form-field class="w-100">
+                                <mat-label>Subject:</mat-label>
+                                <input type="text" matInput name="Subject" formControlName="Subject"
+                                  placeholder="Subject" [(ngModel)]="supModel.Subject">
+                                <mat-error>
+  
+                                </mat-error>
+                              </mat-form-field>
+                            </div>
+  
+                            <div class="col-4">
+                              <mat-form-field class="w-100">
+                                <mat-label>Problem Description:</mat-label>
+                                <input type="text" matInput name="Description" formControlName="Description"
+                                  placeholder="Description" [(ngModel)]="supModel.Description">
+                                <mat-error>
+  
+                                </mat-error>
+                              </mat-form-field>
+                            </div>
+  
+                           
+  
+                            <div class="col-4">
+                              <mat-form-field class="w-100">
+                                <mat-label>Consent:</mat-label>
+                                <input type="text" matInput name="Consent" formControlName="Consent"
+                                  placeholder="Consent" [(ngModel)]="supModel.Consent">
+                                <mat-error>
+  
+                                </mat-error>
+                              </mat-form-field>
+                            </div>
+                           
+  
+                           
+  
+  
+                          </div>
+  
+  
+  
+  
+                          <!-- <lib-json-schema-form [schema]="requestorSchema"></lib-json-schema-form> -->
+                        </div>
+                        
+                        
+                        
+                        <!-- <lib-json-schema-form [schema]="descriptionSchema"></lib-json-schema-form> -->
+                      </div>
+                    </mat-expansion-panel>
+                  </mat-accordion>
+                  <br />
+                  <mat-accordion style="color:lightblue;">
+                    <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false"
+                      style="background:rgb(221, 235, 241) ;" expanded="true">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          Priority:
+                        </mat-panel-title>
+                        <mat-panel-description>
+                          <!-- <span ></span> -->
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
+                      <div style="background-color: whitesmoke; padding: 15px; margin:auto;">
+                        <div mat-dialog-content class="container-fluid" formGroupName="Priority">
+                          <div class="row mb-1">
+  
+                            <div class="col-4">
+                              <mat-form-field class="w-100">
+                                <mat-label>Priority:</mat-label>
+                                <input type="text" matInput name="Priority" formControlName="Priority"
+                                  placeholder="Priority" [(ngModel)]="supModel.Priority">
+                                <mat-error>
+  
+                                </mat-error>
+                              </mat-form-field>
+                            </div>  
+                            
+                            <div class="col-4">
+                              <mat-form-field class="w-100">
+                                <mat-label>Emerg Contact:</mat-label>
+                                <input type="text" matInput name="EmergContact" formControlName="EmergContact"
+                                  placeholder="Emerg Contact" [(ngModel)]="supModel.EmergContact">
+                                <mat-error>
+  
+                                </mat-error>
+                              </mat-form-field>
+                            </div>
+  
+                            <div class="col-4">
+                              <mat-form-field class="w-100">
+                                <mat-label>Business Impact:</mat-label>
+                                <input type="text" matInput name="BusinessImpact" formControlName="BusinessImpact"
+                                  placeholder="Business Impact" [(ngModel)]="supModel.BusinessImpact">
+                                <mat-error>
+  
+                                </mat-error>
+                              </mat-form-field>
+                            </div>  
+  
+                          </div>
+  
+  
+  
+  
+                          <!-- <lib-json-schema-form [schema]="requestorSchema"></lib-json-schema-form> -->
+                        </div>
+                        <!-- <lib-json-schema-form [schema]="prioritySchema"></lib-json-schema-form> -->
+                      </div>
+                    </mat-expansion-panel>
+                  </mat-accordion>
+                  <br />
+                  <mat-accordion style="color:lightblue;">
+                    <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false"
+                      style="background:rgb(221, 235, 241) ;" expanded="true">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          Attachment(s):
+                        </mat-panel-title>
+                        <mat-panel-description>
+                          <!-- <span ></span> -->
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
+                      <div style="background-color: whitesmoke; padding: 15px; margin:auto;" formArrayName="Attachment">
+                        <button (click)="fileInput.click()">Select File</button>
+
+                          <input
+                            style="display: none"
+                            #attachments
+                            type="file"
+                            (change)="onFileChanged($event)"
+                            #fileInput
+                            multiple="true"
+                          />
+
+                          <div *ngFor="let selected of listOfFiles; let index = index">
+                            <h3>Name:{{ selected.name }}; -- Type:{{selected.type}}; -- Size:{{selected.size}}</h3>
+                            <button mat-icon-button (click)="removeSelectedFile(index)">delete</button>
+                          </div>
+
+                          <p *ngIf="isLoading">Loading.....</p>
+
+                        <input type="text" formControlName="Attachment" />
+                        <!-- <portal-attachmentprimenghome formControlName="Attachment"></portal-attachmentprimenghome> -->
+                      </div>
+                    </mat-expansion-panel>
+                  </mat-accordion>
+                  <br />
+  
+                  
+                  <mat-accordion style="color:lightblue;">
+                    <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false"
+                      style="background:rgb(221, 235, 241) ;" expanded="true">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          Functional Contact Information:
+                        </mat-panel-title>
+                        <mat-panel-description>
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
+                      <div style="background-color: whitesmoke; padding: 15px; margin:auto;">
+
+                        <!-- *ngFor="let orgs of form.controls['justificationItems']?.controls;  let i = index" -->
+                        
+                        <div class="row mb-1" formArrayName="FunctionalContacts">
+                          <div *ngFor="let fc of supModel.FunctionalContacts; let i = index;">
+                            <div [formGroupName]="i" >
+                              <div class="col-4">
+                                <mat-form-field class="w-100">
+                                  <mat-label>Name:</mat-label>
+                                  <input type="text" matInput name="Name" formControlName="Name"
+                                    placeholder="Name" [(ngModel)]="fc.Name">
+                                  <mat-error>
+      
+                                  </mat-error>
+                                </mat-form-field>
+                              </div>
+      
+                              <!-- <div class="col-4">
+                                <mat-form-field class="w-100">
+                                  <mat-label>Role:</mat-label>
+                                  <input type="text" matInput name="Role" formControlName="Role"
+                                    placeholder="Role" [(ngModel)]="supModel.Role">
+                                  <mat-error>
+      
+                                  </mat-error>
+                                </mat-form-field>
+                              </div>
+      
+                              <div class="col-4">
+                                <mat-form-field class="w-100">
+                                  <mat-label>Phone:</mat-label>
+                                  <input type="text" matInput name="Phone" formControlName="Phone"
+                                    placeholder="Phone" [(ngModel)]="supModel.Phone">
+                                  <mat-error>
+      
+                                  </mat-error>
+                                </mat-form-field>
+                              </div>
+      
+                              <div class="col-4">
+                                <mat-form-field class="w-100">
+                                  <mat-label>Email:</mat-label>
+                                  <input type="text" matInput name="Email" formControlName="Email"
+                                    placeholder="Email" [(ngModel)]="supModel.Email">
+                                  <mat-error>
+      
+                                  </mat-error>
+                                </mat-form-field>
+                              </div>--> 
+      
+                            </div>   
+                          </div>
+                        </div>
+                        
+
+                        
+                        <lib-json-schema-form [schema]="contactDetSchema"></lib-json-schema-form>
+                      </div>
+                    </mat-expansion-panel>
+                  </mat-accordion>
+                  <br />
+                </div>
+
+
+
+             
+
+              </div>
+
+              <br />
+
+              <pre>{{_form.value | json}}</pre>
+
+              <div
+                style="background-color: whitesmoke; padding: 15px; margin-left: 15px; margin-right: 15px; display: flex;">
+                <div fxLayout="row" fxFlex="1 1 100">
+                  <button mat-button type="submit" class="mat-raised-button mat-primary"
+                    (click)="approverAction('Submitted')" id="btnSubmitNewReq" *ngIf="uId == ''">Submit</button>
+                  <button mat-button type="button" class="mat-raised-button mat-primary"
+                    (click)="approverAction('Approved')" id="btnApprove" *ngIf="uId != ''">Approve</button>
+                </div>
+              </div>
+            </form>
+            <br>
+          </div>
+        </div>
+
+        <br />
+
+      </mat-drawer-content>
+    </mat-drawer-container>
+
+
+
+
+  </mat-sidenav-content>
+
+</mat-sidenav-container>

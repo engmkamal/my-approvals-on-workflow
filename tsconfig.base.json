@@ -14,7 +14,16 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@portal/core": ["libs/core/src/index.ts"],
+      "@portal/dashboard": ["libs/dashboard/src/index.ts"],
+      "@portal/shared/data-access-user": [
+        "libs/shared/data-access-user/src/index.ts"
+      ],
+      "@portal/ui": ["libs/ui/src/index.ts"],
+      "@portal/ui-components": ["libs/ui-components/src/index.ts"],
+      "@portal/utils": ["libs/utils/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

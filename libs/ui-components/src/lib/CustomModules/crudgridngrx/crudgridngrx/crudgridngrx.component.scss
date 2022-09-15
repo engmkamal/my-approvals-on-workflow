@@ -1,0 +1,118 @@
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 95vh;
+  }
+  
+  #wrapper {
+    text-align: center;
+    color: white;
+    display: flex;
+    height: 100vh;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0px;
+    width: 400px;
+    margin: 0 auto;
+  }
+  
+  #shopping-list {
+    box-shadow: 20px 20px 0px #222f3e;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: row;
+  }
+  
+  form > input {
+    flex-grow: 1;
+    outline: none;
+    padding-left: 4px;
+    border: 0px;
+    height: 20px;
+  }
+  
+  form > button {
+    border: 0px;
+    background: #10ac84;
+    color: white;
+    outline: none;
+  
+    &:hover {
+      background: #006266;
+    }
+  }
+  
+  ul {
+    list-style: none;
+    background: #1dd1a1;
+    padding: 10px 0px;
+    margin: 0px;
+  }
+  
+  li {
+    padding-bottom: 4px;
+  }
+  
+  h2 {
+    background: #10ac84;
+    padding: 10px 0px;
+    margin: 0px;
+  }
+  
+  
+  
+  .app-container {
+    width: 90%;
+    margin: auto;
+    margin-top: 50px;
+    height: 100vh;
+  }
+  
+  
+  
+  .admin-buttons-container {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+  }
+  
+  .admin-buttons-container > button {
+    margin-right: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+  
+  input {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+  
+  
+  .grid-container {
+    height: 40vh;;
+  }
+  
+  .store-container {
+    height: 35vh;;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  
+  .store-row-data {
+    overflow: auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border: 5px #e5f3ef groove;
+  }
+  
+  .store-column-defs {
+      overflow: auto;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      border: 5px #e5f3ef groove;
+  }
+  
+

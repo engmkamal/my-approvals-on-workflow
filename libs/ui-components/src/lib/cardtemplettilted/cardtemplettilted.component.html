@@ -1,0 +1,26 @@
+<!-- <div #card class="card-wrap" (click)="onClickOnCard(cardInfo)" style="width:290px;"> -->
+<div #card class="card-wrap" (click)="onClickOnCard(cardInfo)"
+    fxFlex="25"
+    fxFlex.md="33"
+    fxFlex.sm="50"
+    fxFlex.xs="100"
+    fxLayout="column"
+    style="padding: 5px;">
+    <a routerLink="./vpnextension">
+        <div class="card" [ngStyle]="cardStyle()">
+            <div class="card-bg" [ngStyle]="cardBgTransform()">            
+                <div style="border: 2px solod; background-color: linear-gradient(to right,#0f2027, #203a43, #2c5364); overflow: hidden; padding: 5px; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; width: 250px; height: 58px; align-items: center; margin:auto;" [style.background]="cardInfo.BackgroundColor" class="cent-aligned" (mouseenter)="mouseenterOnCard($event)" (mouseleave)="mouseleaveOnCard($event)">
+                    <p style="padding: 5px; font-family:Arial; font-size: 16px; font-weight:100; color:navy; margin:auto; text-align:center">
+                        {{ cardInfo.Title }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </a>
+</div>
+
+
+
+
+
+
