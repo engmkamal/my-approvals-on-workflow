@@ -1808,7 +1808,7 @@ export class ParentdashboardlandingComponent implements OnInit, AfterViewInit {
 
   async ngOnInit() {
     
-    const dbListsInfoUrl = "https://portal.bergerbd.com/Style Library/pendingtasks/V2/assets/myApprovedWF.ts";
+    const dbListsInfoUrl = "https://portal.bergerbd.com/Style Library/myapproval/V1/assets/myApprovedWF.ts";
     //const dbListsInfoUrl = "http://localhost:4211/assets/myApprovedWF.ts";
     this.httpClient.get(dbListsInfoUrl).subscribe(data =>{
       this.dashboardsListsInfo = data;

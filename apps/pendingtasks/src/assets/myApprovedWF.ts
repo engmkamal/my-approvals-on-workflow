@@ -13,9 +13,9 @@
         "DbViewColDef": [
             { "fldType": "ViewLinkGuidField", "headerName": "Action", "field": "GUID", "editable":false, "minWidth": 120 },
             { "fldType": "TitleWitouthMDField", "headerName": "RequestId", "field": "Title", "editable":false, "minWidth": 120 },
-            { "fldType": "GetSetDateTimeField", "headerName": "Created", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 190 },
+            { "fldType": "GetSetDateTimeField", "headerName": "Created", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 170 },
             { "fldType": "TextField", "headerName": "Status", "field": "Status", "editable":false, "minWidth": 165 },
-            { "fldType": "TextField", "headerName": "Comment", "field": "Comment", "editable":false, "minWidth": 250 }
+            { "fldType": "TextField", "headerName": "Comment", "field": "Comment", "editable":false, "minWidth": 480 }
         ],
         "MasterDetailViewColDef": []
     },
@@ -33,9 +33,9 @@
         "DbViewColDef": [
             { "fldType": "ViewLinkGuidField", "headerName": "Action", "field": "GUID", "editable":false, "minWidth": 120 },
             { "fldType": "TitleWitouthMDField", "headerName": "Request ID", "field": "Title", "editable":false, "minWidth": 120 },
-            { "fldType": "GetSetDateTimeField", "headerName": "Action Date", "field": "ActionDate", "valueGetter":"ActionDate", "editable":false, "minWidth": 190 },
+            { "fldType": "GetSetDateTimeField", "headerName": "Action Date", "field": "ActionDate", "valueGetter":"ActionDate", "editable":false, "minWidth": 170 },
             { "fldType": "TextField", "headerName": "Status", "field": "Status", "editable":false, "minWidth": 165 },
-            { "fldType": "TextField", "headerName": "Comment", "field": "Comment", "editable":false, "minWidth": 120 }
+            { "fldType": "TextField", "headerName": "Comment", "field": "Comment", "editable":false, "minWidth": 480 }
         ],
         "MasterDetailViewColDef": []
     },
@@ -53,9 +53,9 @@
         "DbViewColDef": [
             { "fldType": "ViewLinkGuidField", "headerName": "Action", "field": "GUID", "editable":false, "minWidth": 120 },
             { "fldType": "TitleWitouthMDField", "headerName": "Request ID", "field": "Title", "editable":false, "minWidth": 120 },
-            { "fldType": "GetSetDateTimeField", "headerName": "Action Date", "field": "ActionDate", "valueGetter":"ActionDate", "editable":false, "minWidth": 190 },
+            { "fldType": "GetSetDateTimeField", "headerName": "Action Date", "field": "ActionDate", "valueGetter":"ActionDate", "editable":false, "minWidth": 170 },
             { "fldType": "TextField", "headerName": "Status", "field": "Status", "editable":false, "minWidth": 165 },
-            { "fldType": "TextField", "headerName": "Comment", "field": "Comment", "editable":false, "minWidth": 120 }
+            { "fldType": "TextField", "headerName": "Comment", "field": "Comment", "editable":false, "minWidth": 480 }
         ],
         "MasterDetailViewColDef": []
     },
@@ -73,9 +73,9 @@
         "DbViewColDef": [
             { "fldType": "ViewLinkGuidField", "headerName": "Action", "field": "GUID", "editable":false, "minWidth": 120 },
             { "fldType": "TitleWitouthMDField", "headerName": "Request ID", "field": "RequestId", "editable":false, "minWidth": 120 },
-            { "fldType": "GetSetDateTimeField", "headerName": "Action Date", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 190 },
+            { "fldType": "GetSetDateTimeField", "headerName": "Action Date", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 170 },
             { "fldType": "TextField", "headerName": "Status", "field": "Status", "editable":false, "minWidth": 165 },
-            { "fldType": "TextField", "headerName": "Comment", "field": "CommentText", "editable":false, "minWidth": 120 }
+            { "fldType": "TextField", "headerName": "Comment", "field": "CommentText", "editable":false, "minWidth": 480 }
         ],
         "MasterDetailViewColDef": []
     },
@@ -93,9 +93,9 @@
         "DbViewColDef": [
             { "fldType": "ViewLinkGuidField", "headerName": "Action", "field": "GUID", "editable":false, "minWidth": 120 },
             { "fldType": "TitleWitouthMDField", "headerName": "Request Id", "field": "Title", "editable":false, "minWidth": 120 },
-            { "fldType": "GetSetDateTimeField", "headerName": "Created", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 190 },
+            { "fldType": "GetSetDateTimeField", "headerName": "Created", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 170 },
             { "fldType": "TextField", "headerName": "Status", "field": "Status", "editable":false, "minWidth": 165 },
-            { "fldType": "TextField", "headerName": "Comment", "field": "Comment", "editable":false, "minWidth": 120 }
+            { "fldType": "TextField", "headerName": "Comment", "field": "Comment", "editable":false, "minWidth": 480 }
         ],
         "MasterDetailViewColDef": []
     },
@@ -113,9 +113,9 @@
         "DbViewColDef": [
             { "fldType": "ViewLinkGuidField", "headerName": "Action", "field": "GUID", "editable":false, "minWidth": 120 },
             { "fldType": "TitleWitouthMDField", "headerName": "RequestId", "field": "Title", "editable":false, "minWidth": 120 },
-            { "fldType": "GetSetDateTimeField", "headerName": "Created", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 190 },
+            { "fldType": "GetSetDateTimeField", "headerName": "Created", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 170 },
             { "fldType": "TextField", "headerName": "Status", "field": "Status", "editable":false, "minWidth": 165 },
-            { "fldType": "TextField", "headerName": "Comment", "field": "Comment", "editable":false, "minWidth": 120 }
+            { "fldType": "TextField", "headerName": "Comment", "field": "Comment", "editable":false, "minWidth": 480 }
         ],
         "MasterDetailViewColDef": []
     },
@@ -133,9 +133,9 @@
         "DbViewColDef": [
             { "fldType": "ViewLinkGuidField", "headerName": "Action", "field": "GUID", "editable":false, "minWidth": 120 },
             { "fldType": "TitleWitouthMDField", "headerName": "Request Id", "field": "Title", "editable":false, "minWidth": 120 },
-            { "fldType": "GetSetDateTimeField", "headerName": "Created", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 190 },
+            { "fldType": "GetSetDateTimeField", "headerName": "Created", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 170 },
             { "fldType": "TextField", "headerName": "Status", "field": "Status", "editable":false, "minWidth": 165 },
-            { "fldType": "TextField", "headerName": "Comment", "field": "Comment", "editable":false, "minWidth": 120 }
+            { "fldType": "TextField", "headerName": "Comment", "field": "Comment", "editable":false, "minWidth": 480 }
         ],
         "MasterDetailViewColDef": []
     },
@@ -153,9 +153,9 @@
         "DbViewColDef": [
             { "fldType": "ViewLinkGuidField", "headerName": "Action", "field": "GUID", "editable":false, "minWidth": 120 },
             { "fldType": "TitleWitouthMDField", "headerName": "Title", "field": "Title", "editable":false, "minWidth": 120 },
-            { "fldType": "GetSetDateTimeField", "headerName": "Created", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 190 },
+            { "fldType": "GetSetDateTimeField", "headerName": "Created", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 170 },
             { "fldType": "TextField", "headerName": "Status", "field": "Status", "editable":false, "minWidth": 165 },
-            { "fldType": "TextField", "headerName": "Comment", "field": "Comment", "editable":false, "minWidth": 120 }
+            { "fldType": "TextField", "headerName": "Comment", "field": "Comment", "editable":false, "minWidth": 480 }
         ],
         "MasterDetailViewColDef": []
     },
@@ -173,9 +173,9 @@
         "DbViewColDef": [
             { "fldType": "ViewLinkGuidField", "headerName": "Action", "field": "GUID", "editable":false, "minWidth": 120 },
             { "fldType": "TitleWitouthMDField", "headerName": "Title", "field": "Title", "editable":false, "minWidth": 120 },
-            { "fldType": "GetSetDateTimeField", "headerName": "Created", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 190 },
+            { "fldType": "GetSetDateTimeField", "headerName": "Created", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 170 },
             { "fldType": "TextField", "headerName": "Status", "field": "Status", "editable":false, "minWidth": 165 },
-            { "fldType": "TextField", "headerName": "Comment", "field": "Comment", "editable":false, "minWidth": 120 }
+            { "fldType": "TextField", "headerName": "Comment", "field": "Comment", "editable":false, "minWidth": 480 }
         ],
         "MasterDetailViewColDef": []
     },
@@ -193,9 +193,9 @@
         "DbViewColDef": [
             { "fldType": "ViewLinkGuidField", "headerName": "Action", "field": "GUID", "editable":false, "minWidth": 120 },
             { "fldType": "TitleWitouthMDField", "headerName": "Title", "field": "Title", "editable":false, "minWidth": 120 },
-            { "fldType": "GetSetDateTimeField", "headerName": "Created", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 190 },
+            { "fldType": "GetSetDateTimeField", "headerName": "Created", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 170 },
             { "fldType": "TextField", "headerName": "Status", "field": "Status", "editable":false, "minWidth": 165 },
-            { "fldType": "TextField", "headerName": "Comment", "field": "Comment", "editable":false, "minWidth": 120 }
+            { "fldType": "TextField", "headerName": "Comment", "field": "Comment", "editable":false, "minWidth": 480 }
         ],
         "MasterDetailViewColDef": []
     },
@@ -213,9 +213,9 @@
         "DbViewColDef": [
             { "fldType": "ViewLinkGuidField", "headerName": "Action", "field": "GUID", "editable":false, "minWidth": 120 },
             { "fldType": "TitleWitouthMDField", "headerName": "Title", "field": "Title", "editable":false, "minWidth": 120 },
-            { "fldType": "GetSetDateTimeField", "headerName": "Created", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 190 },
+            { "fldType": "GetSetDateTimeField", "headerName": "Created", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 170 },
             { "fldType": "TextField", "headerName": "Status", "field": "Action", "editable":false, "minWidth": 165 },
-            { "fldType": "TextField", "headerName": "Comment", "field": "Comment", "editable":false, "minWidth": 120 }
+            { "fldType": "TextField", "headerName": "Comment", "field": "Comment", "editable":false, "minWidth": 480 }
         ],
         "MasterDetailViewColDef": []
     },
@@ -233,9 +233,9 @@
         "DbViewColDef": [
             { "fldType": "ViewLinkGuidField", "headerName": "Action", "field": "GUID", "editable":false, "minWidth": 120 },
             { "fldType": "TitleWitouthMDField", "headerName": "Title", "field": "RequestId", "editable":false, "minWidth": 120 },
-            { "fldType": "GetSetDateTimeField", "headerName": "Created", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 190 },
-            { "fldType": "TextField", "headerName": "Status", "field": "Action", "editable":false, "minWidth": 165 },
-            { "fldType": "TextField", "headerName": "Comment", "field": "CommentTxt", "editable":false, "minWidth": 120 }
+            { "fldType": "GetSetDateTimeField", "headerName": "Created", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 170 },
+            { "fldType": "TextField", "headerName": "Status", "field": "Status", "editable":false, "minWidth": 165 },
+            { "fldType": "TextField", "headerName": "Comment", "field": "CommentTxt", "editable":false, "minWidth": 480 }
         ],
         "MasterDetailViewColDef": []
     },
@@ -253,9 +253,9 @@
         "DbViewColDef": [
             { "fldType": "ViewLinkIdField", "headerName": "Action", "field": "GUID", "editable":false, "minWidth": 120 },
             { "fldType": "TitleWitouthMDField", "headerName": "Title", "field": "Title", "editable":false, "minWidth": 120 },
-            { "fldType": "GetSetDateTimeField", "headerName": "Created", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 190 },
+            { "fldType": "GetSetDateTimeField", "headerName": "Created", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 170 },
             { "fldType": "TextField", "headerName": "Status", "field": "Action", "editable":false, "minWidth": 165 },
-            { "fldType": "TextField", "headerName": "Comment", "field": "CommentTxt", "editable":false, "minWidth": 120 }
+            { "fldType": "TextField", "headerName": "Comment", "field": "CommentTxt", "editable":false, "minWidth": 480 }
         ],
         "MasterDetailViewColDef": []
     }

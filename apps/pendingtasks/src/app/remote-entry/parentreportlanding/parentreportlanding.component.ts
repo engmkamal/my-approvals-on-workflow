@@ -1742,7 +1742,7 @@ export class ParentreportlandingComponent implements OnInit, AfterViewInit {
       this.mpTG.animateRows = true;
       this.mpTG.suppressDragLeaveHidesColumns = true;
       this.mpTG.groupUseEntireRow = true;
-      this.mpTG.paginationPageSize = 1000;
+      this.mpTG.paginationPageSize = 10;
       this.mpTG.floatingFilter = true;
       this.mpTG.cacheQuickFilter = true;
       this.mpTG.enableCharts = true;
@@ -1789,67 +1789,39 @@ export class ParentreportlandingComponent implements OnInit, AfterViewInit {
       if(this.dashboardsListsInfo[this.clickedDashboardInfo.listIndex].AcessPermission == 'Public'){
         this.clickedDashboardInfo.acessPermission = 'Public';
         this.logedInUser.access = 'FullAccess';
-        this.sharepointlistService.getEmpIdNdOffice().then((res:any)=>{
-          this.logedInUser.aDId = res.ADId;
-          this.logedInUser.empID = res.EmpID;
-          this.logedInUser.office = res.Office;
-        })
         resolve(this.logedInUser);
       }else{
-        this.sharepointlistService.getEmpIdNdOffice().then((res:any)=>{
-          this.logedInUser.aDId = res.ADId;
-          this.logedInUser.empID = res.EmpID;
-          this.logedInUser.office = res.Office;
-        }).then((res:any):void=>{
-
-          const aDIdGrp = this.dashboardsListsInfo[this.clickedDashboardInfo.listIndex].AuthUsersADId;
-          const empIdGrp = this.dashboardsListsInfo[this.clickedDashboardInfo.listIndex].AuthUsersEmpId;
-          const authGrp = this.dashboardsListsInfo[this.clickedDashboardInfo.listIndex].AuthGroups;
-              
-          if(aDIdGrp.length > 0 && aDIdGrp.includes(this.logedInUser.aDId)){
-            this.clickedDashboardInfo.acessPermission = 'Protected';
-            this.logedInUser.access = 'FullAccess';
-            resolve(this.logedInUser);
-          }
-          else if(empIdGrp.length >0 && empIdGrp.includes(this.logedInUser.empID)){
-            this.clickedDashboardInfo.acessPermission = 'Protected';
-            this.logedInUser.access = 'FullAccess';
-            resolve(this.logedInUser);
-          }
-          else if(authGrp.length > 0 ){ 
-            const apiUrl = `https://portal.bergerbd.com/_api/web/sitegroups/getByName('${authGrp}')/Users?$filter=Id eq ${this.logedInUser.aDId}` ;
+        const aDIdGrp = this.dashboardsListsInfo[this.clickedDashboardInfo.listIndex].AuthUsersADId;
+        const empIdGrp = this.dashboardsListsInfo[this.clickedDashboardInfo.listIndex].AuthUsersEmpId;
+        const authGrp = this.dashboardsListsInfo[this.clickedDashboardInfo.listIndex].AuthGroups;
             
-            const isInAuthGrp = this.httpClient.get<any[]>(apiUrl).pipe(map((items:any)=>{              
-              return (items.value.length > 0 )? true: false;
-            }));
+        if(aDIdGrp.length > 0 && aDIdGrp.includes(this.logedInUser.aDId)){
+          this.clickedDashboardInfo.acessPermission = 'Protected';
+          this.logedInUser.access = 'FullAccess';
+          resolve(this.logedInUser);
+        }
+        else if(empIdGrp.length >0 && empIdGrp.includes(this.logedInUser.empID)){
+          this.clickedDashboardInfo.acessPermission = 'Protected';
+          this.logedInUser.access = 'FullAccess';
+          resolve(this.logedInUser);
+        }
+        else if(authGrp.length > 0 ){ 
+          const apiUrl = `https://portal.bergerbd.com/_api/web/sitegroups/getByName('${authGrp}')/Users?$filter=Id eq ${this.logedInUser.aDId}` ;
+          
+          const isInAuthGrp = this.httpClient.get<any[]>(apiUrl).pipe(map((items:any)=>{              
+            return (items.value.length > 0 )? true: false;
+          }));
 
-            if(isInAuthGrp){
-              this.clickedDashboardInfo.acessPermission = 'Protected';
-              this.logedInUser.access = 'FullAccess';
-              resolve(this.logedInUser);
-            }else{
-              alert("Unauthorized access !!!");
-              reject(this.logedInUser);
-              //return false;
-            }
-           
-           
-            // this.httpClient.get<any[]>(apiUrl).subscribe(
-            //   (items:any) => {
-            //     if(items.value.length > 0 ){
-            //       this.clickedDashboardInfo.acessPermission = 'Protected';
-            //       this.logedInUser.access = 'FullAccess';
-            //       resolve(this.logedInUser);
-            //     }else{
-            //       alert("Unauthorized access !!");
-            //       reject(this.logedInUser);
-            //       return false;
-            //     }
-            //     return this.logedInUser;
-            //   }              
-            // ) 
-          }          
-        });         
+          if(isInAuthGrp){
+            this.clickedDashboardInfo.acessPermission = 'Protected';
+            this.logedInUser.access = 'FullAccess';
+            resolve(this.logedInUser);
+          }else{
+            alert("Unauthorized access !!!");
+            reject(this.logedInUser);
+            //return false;
+          } 
+        }         
       }
     })
 
@@ -1919,8 +1891,21 @@ export class ParentreportlandingComponent implements OnInit, AfterViewInit {
     
   }
 
+  //=======step-1 list{apiUrl: , top: ,}
+  async getlogedInUser(){ 
+    return new Promise((resolve, reject)=>{
+      this.sharepointlistService.getEmpIdNdOffice().then((res:any)=>{
+        this.logedInUser.aDId = res.ADId;
+        this.logedInUser.empID = res.EmpID;
+        this.logedInUser.office = res.Office;
+        resolve(this.logedInUser);
+      })
+    })    
+  }
+
   async executeOnInitProcesses(){    
     try{
+      await this.getlogedInUser();
       await this.checkAuthorization();
       await this.getSelectedDashboardInfo(this.clickedDashboardInfo);
       //await this.importLocalStorageData();
@@ -1942,7 +1927,7 @@ export class ParentreportlandingComponent implements OnInit, AfterViewInit {
   }
 
   async ngOnInit() {
-    const dbListsInfoUrl = "https://portal.bergerbd.com/Style Library/pendingtasks/V2/assets/myApprovedWF.ts";
+    const dbListsInfoUrl = "https://portal.bergerbd.com/Style Library/myapproval/V1/assets/myApprovedWF.ts";
     //const dbListsInfoUrl = "http://localhost:4211/assets/myApprovedWF.ts";
     this.httpClient.get(dbListsInfoUrl).subscribe(data =>{
       this.dashboardsListsInfo = data;
