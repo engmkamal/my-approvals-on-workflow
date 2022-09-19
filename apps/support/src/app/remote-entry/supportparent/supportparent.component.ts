@@ -439,7 +439,9 @@ export class SupportparentComponent implements OnInit {
 
 
       //const loggedUser = await this.userService.loggedUserInfo$; 
-      const loggedUser = await this.userService.customersList[0]; 
+      const loggedUser = await this.userService.customerInfo; //from Database Table
+      //const loggedUser = await this.userService.customersList[0]; //from local storage data of service
+      
 
       //this.logedUserAdId = loggedUser.cId;
       //let applicantInfo = await this.getEmpInfo(empAdId);

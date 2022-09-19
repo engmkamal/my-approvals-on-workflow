@@ -90,9 +90,9 @@ export class SupportcustomerComponent implements OnInit{
       CustCompanyName: [this.requestorsInfo.CustCompanyName],
       CustId: [this.requestorsInfo.CustId],      
       CustDesignation: [this.requestorsInfo.CustDesignation],
-      CustCompanyAddress: [this.requestorsInfo.CustCompanyAddress],
-      CustEmail: [this.requestorsInfo.CustEmail],
-      CustContact: [this.requestorsInfo.CustContact],
+      CustCompanyAddress: [this.requestorsInfo.CustCompany1stAddress],
+      CustEmail: [this.requestorsInfo.Cust1stEmail],
+      CustContact: [this.requestorsInfo.Cust1stMobile],
       RequestDate: [this.requestorsInfo.RequestDate]
     };
     this.formGroup.addControl('Requestor', this.formbuilder.group(config));  

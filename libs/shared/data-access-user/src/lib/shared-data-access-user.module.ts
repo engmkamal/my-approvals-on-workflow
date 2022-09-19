@@ -5,9 +5,14 @@ import { FormsModule } from '@angular/forms';
 
 import { UserloginComponent } from './userlogin/userlogin.component';
 import { UserComponent } from './user/user.component';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule, 
+    FormsModule,
+    HttpClientModule
+  ],
   declarations: [
     UserloginComponent,
     UserComponent
